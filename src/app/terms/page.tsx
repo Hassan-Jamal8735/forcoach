@@ -28,13 +28,12 @@ export default function TermsOfServicePage() {
               <p>
                 These Terms of Service (&ldquo;Terms&rdquo;) govern your
                 access to and use of FORCOACH (forcoach.io and the FORCOACH
-                web application), operated by{" "}
-                <em>
-                  [Legal entity name and registered address — France, to be
-                  confirmed]
-                </em>
-                . By creating an account or using FORCOACH, you agree to
-                these Terms.
+                web application), operated by Combeau Aya Rose Mourtaday, a
+                sole trader (entrepreneur individuel) registered in France
+                under SIREN 104962998, registered address 38 Rue du
+                Lieutenant Jean Vigneux, 95210 Saint-Gratien, France. By
+                creating an account or using FORCOACH, you agree to these
+                Terms.
               </p>
             </section>
 
