@@ -188,13 +188,13 @@ export default function PrivacyPolicyPage() {
                 FORCOACH.
               </p>
               <p>
-                <em>
-                  [Data hosting region to be confirmed: if our database
-                  region is outside the EU/EEA, this section will be updated
-                  to name the specific safeguard relied on for the transfer,
-                  such as the European Commission&apos;s Standard
-                  Contractual Clauses.]
-                </em>
+                As FORCOACH grows, our hosting infrastructure may change,
+                including a potential move to servers we manage directly. If
+                any future change involves transferring data outside the
+                EU/EEA, we&apos;ll update this policy to name the specific
+                safeguard relied on for that transfer, such as the European
+                Commission&apos;s Standard Contractual Clauses, before that
+                change takes effect.
               </p>
             </section>
 
