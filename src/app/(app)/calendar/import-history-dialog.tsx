@@ -69,7 +69,11 @@ export function ImportHistoryDialog() {
               >
                 <div>
                   <p className="font-medium">
-                    {a.source === "csv" ? "CSV import" : "Google Calendar sync"}
+                    {a.source === "csv"
+                      ? "CSV import"
+                      : a.source === "ics"
+                        ? "ICS feed sync"
+                        : "Google Calendar sync"}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {new Date(a.started_at).toLocaleString()}

@@ -14,6 +14,7 @@ import type {
   GoogleCalendarStatus,
   GoogleSyncResult,
 } from "@/lib/api/google-calendar";
+import type { IcsFeed, IcsSyncResult } from "@/lib/api/ics-feeds";
 
 export type ImportActionState = {
   error?: string;
@@ -252,5 +253,66 @@ export async function setEventExcluded(
     return { error: err instanceof ApiError ? err.message : "Failed to update event" };
   }
   revalidatePath("/calendar");
+  return {};
+}
+
+export async function fetchIcsFeeds(): Promise<{
+  error?: string;
+  feeds?: IcsFeed[];
+}> {
+  try {
+    const feeds = await apiFetch<IcsFeed[]>("/ics-feeds");
+    return { feeds };
+  } catch (err) {
+    return {
+      error: err instanceof ApiError ? err.message : "Failed to load ICS feeds",
+    };
+  }
+}
+
+export async function createIcsFeed(
+  url: string,
+  name: string,
+  defaultStudioId?: string,
+): Promise<{ error?: string; result?: IcsSyncResult }> {
+  try {
+    const result = await apiFetch<IcsSyncResult>("/ics-feeds", {
+      method: "POST",
+      body: JSON.stringify({ url, name, defaultStudioId }),
+    });
+    revalidatePath("/calendar");
+    return { result };
+  } catch (err) {
+    return {
+      error: err instanceof ApiError ? err.message : "Failed to add feed",
+    };
+  }
+}
+
+export async function syncIcsFeed(
+  id: string,
+): Promise<{ error?: string; result?: IcsSyncResult }> {
+  try {
+    const result = await apiFetch<IcsSyncResult>(`/ics-feeds/${id}/sync`, {
+      method: "POST",
+    });
+    revalidatePath("/calendar");
+    return { result };
+  } catch (err) {
+    return {
+      error: err instanceof ApiError ? err.message : "Failed to sync feed",
+    };
+  }
+}
+
+export async function deleteIcsFeed(id: string): Promise<{ error?: string }> {
+  try {
+    await apiFetch(`/ics-feeds/${id}`, { method: "DELETE" });
+    revalidatePath("/calendar");
+  } catch (err) {
+    return {
+      error: err instanceof ApiError ? err.message : "Failed to delete feed",
+    };
+  }
   return {};
 }

@@ -82,7 +82,9 @@ export function EventRow({
             ? "CSV"
             : event.source === "google_calendar"
               ? "Google"
-              : "Manual"}
+              : event.source === "ics"
+                ? "ICS"
+                : "Manual"}
         </Badge>
         <ExcludeEventButton event={event} />
         <EventFormDialog

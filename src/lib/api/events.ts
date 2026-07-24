@@ -1,4 +1,4 @@
-export type EventSource = "google_calendar" | "csv" | "manual";
+export type EventSource = "google_calendar" | "csv" | "manual" | "ics";
 export type EventStatus = "assigned" | "unassigned" | "excluded";
 
 export type Event = {
@@ -52,7 +52,7 @@ export type EventInput = {
 export type ImportActivity = {
   id: string;
   user_id: string;
-  source: "google_calendar" | "csv";
+  source: "google_calendar" | "csv" | "ics";
   status: "running" | "success" | "partial" | "failed";
   records_processed: number;
   records_created: number;
