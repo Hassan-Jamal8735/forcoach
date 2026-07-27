@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
 import { ProfileForm } from "./profile-form";
@@ -12,6 +13,11 @@ export default async function SettingsPage() {
   const fullName = (user?.user_metadata?.full_name as string | undefined) ?? "";
   const timezone = (user?.user_metadata?.timezone as string | undefined) ?? "UTC";
   const currency = (user?.user_metadata?.currency as string | undefined) ?? "EUR";
+  const siret = (user?.user_metadata?.siret as string | undefined) ?? "";
+  const defaultVatRate =
+    user?.user_metadata?.default_vat_rate != null
+      ? String(user.user_metadata.default_vat_rate as number)
+      : "";
 
   return (
     <div className="space-y-6">
@@ -33,6 +39,8 @@ export default async function SettingsPage() {
             fullName={fullName}
             timezone={timezone}
             currency={currency}
+            siret={siret}
+            defaultVatRate={defaultVatRate}
           />
         </CardContent>
       </Card>
@@ -53,7 +61,11 @@ export default async function SettingsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
-          Coming in Milestone 2.
+          Manage your Google Calendar connection and ICS feeds from the{" "}
+          <Link href="/calendar" className="text-accent hover:underline">
+            Calendar
+          </Link>{" "}
+          page.
         </CardContent>
       </Card>
     </div>

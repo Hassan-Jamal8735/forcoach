@@ -26,11 +26,15 @@ export function ProfileForm({
   fullName,
   timezone,
   currency,
+  siret,
+  defaultVatRate,
 }: {
   email: string;
   fullName: string;
   timezone: string;
   currency: string;
+  siret: string;
+  defaultVatRate: string;
 }) {
   const [state, formAction, isPending] = useActionState(
     updateProfile,
@@ -90,6 +94,36 @@ export function ProfileForm({
         </Select>
         <p className="text-xs text-muted-foreground">
           Only EUR is supported for calculations in this version.
+        </p>
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="siret">SIRET (optional)</Label>
+        <Input
+          id="siret"
+          name="siret"
+          type="text"
+          defaultValue={siret}
+          placeholder="e.g. 123 456 789 00012"
+        />
+        <p className="text-xs text-muted-foreground">
+          Shown on your invoices if provided.
+        </p>
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="defaultVatRate">Default VAT rate % (optional)</Label>
+        <Input
+          id="defaultVatRate"
+          name="defaultVatRate"
+          type="number"
+          min="0"
+          max="100"
+          step="0.1"
+          defaultValue={defaultVatRate}
+          placeholder="Leave blank for no VAT"
+        />
+        <p className="text-xs text-muted-foreground">
+          Pre-fills the VAT rate when creating a new invoice. VAT is off by
+          default.
         </p>
       </div>
       <Button type="submit" disabled={isPending}>

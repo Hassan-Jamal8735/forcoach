@@ -150,10 +150,18 @@ export async function updateProfile(
   const fullName = String(formData.get("fullName") ?? "");
   const timezone = String(formData.get("timezone") ?? "");
   const currency = String(formData.get("currency") ?? "EUR");
+  const siret = String(formData.get("siret") ?? "").trim();
+  const defaultVatRate = String(formData.get("defaultVatRate") ?? "").trim();
 
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({
-    data: { full_name: fullName, timezone, currency },
+    data: {
+      full_name: fullName,
+      timezone,
+      currency,
+      siret: siret || null,
+      default_vat_rate: defaultVatRate ? Number(defaultVatRate) : null,
+    },
   });
 
   if (error) {
