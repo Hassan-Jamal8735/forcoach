@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: "How FORCOACH collects, uses, and protects your data.",
 };
 
-const LAST_UPDATED = "July 24, 2026";
+const LAST_UPDATED = "July 29, 2026";
 
 export default function PrivacyPolicyPage() {
   return (
@@ -198,7 +198,61 @@ export default function PrivacyPolicyPage() {
             </section>
 
             <section>
-              <h2>7. Data retention and deletion</h2>
+              <h2>7. Security measures and data protection mechanisms</h2>
+              <p>
+                We apply the following technical and organizational measures
+                to protect your personal data, including sensitive data such
+                as your Google Calendar schedule details and financial
+                information used to calculate earnings and invoices:
+              </p>
+              <ul>
+                <li>
+                  <strong>Encryption in transit</strong>: all traffic between
+                  your browser, the FORCOACH application, and our backend is
+                  encrypted using HTTPS/TLS. We do not transmit personal data
+                  over unencrypted connections.
+                </li>
+                <li>
+                  <strong>Encryption at rest</strong>: your account and
+                  application data is stored in Supabase, which encrypts
+                  data at rest at the infrastructure level.
+                </li>
+                <li>
+                  <strong>Access controls</strong>: our database enforces
+                  row-level security so that each account can only read or
+                  write its own data — one coach can never query another
+                  coach&apos;s schedule, earnings, or invoices, even in the
+                  event of an application bug. Internal access to production
+                  data is restricted to what is strictly necessary to
+                  operate and support the service.
+                </li>
+                <li>
+                  <strong>Authentication security</strong>: passwords are
+                  hashed by our authentication provider and are never stored
+                  or logged in plain text. Sessions use short-lived,
+                  signed tokens.
+                </li>
+                <li>
+                  <strong>Minimal third-party access</strong>: the Google
+                  Calendar integration requests read-only access to a single
+                  calendar you choose, and OAuth tokens are stored encrypted
+                  and used only for the syncing described in Section 4.
+                </li>
+                <li>
+                  <strong>Data minimization</strong>: we only collect the
+                  data described in Section 2 and do not request access
+                  beyond what FORCOACH&apos;s features require.
+                </li>
+              </ul>
+              <p>
+                If we become aware of a data breach affecting your personal
+                data, we will notify affected users and, where required, the
+                CNIL, in line with our obligations under the GDPR.
+              </p>
+            </section>
+
+            <section>
+              <h2>8. Data retention and deletion</h2>
               <p>
                 We retain your account and schedule data for as long as your
                 account is active. If you&apos;d like your account and
@@ -210,7 +264,7 @@ export default function PrivacyPolicyPage() {
             </section>
 
             <section>
-              <h2>8. Cookies</h2>
+              <h2>9. Cookies</h2>
               <p>
                 FORCOACH uses only the essential cookies needed to keep you
                 signed in and to remember basic preferences. We do not use
@@ -222,7 +276,7 @@ export default function PrivacyPolicyPage() {
             </section>
 
             <section>
-              <h2>9. Your rights</h2>
+              <h2>10. Your rights</h2>
               <p>
                 Under the GDPR and French data protection law, you have the
                 right to:
@@ -278,7 +332,7 @@ export default function PrivacyPolicyPage() {
             </section>
 
             <section>
-              <h2>10. Children&apos;s privacy</h2>
+              <h2>11. Children&apos;s privacy</h2>
               <p>
                 FORCOACH is intended for use by adults operating a coaching
                 business and is not directed at children. We do not
@@ -287,7 +341,7 @@ export default function PrivacyPolicyPage() {
             </section>
 
             <section>
-              <h2>11. Changes to this policy</h2>
+              <h2>12. Changes to this policy</h2>
               <p>
                 We may update this policy as FORCOACH evolves. If we make
                 material changes, we&apos;ll update the &ldquo;Last
@@ -297,7 +351,7 @@ export default function PrivacyPolicyPage() {
             </section>
 
             <section>
-              <h2>12. Contact us</h2>
+              <h2>13. Contact us</h2>
               <p>
                 Questions about this policy or your data? Email us at{" "}
                 <a href="mailto:contact@forcoach.io">contact@forcoach.io</a>.
