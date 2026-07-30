@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { GoogleSignInButton } from "../google-signin-button";
 
 const initialState: AuthActionState = {};
 
@@ -63,6 +64,16 @@ export default function RegisterPage() {
               {isPending ? "Creating account..." : "Create Account"}
             </Button>
           </form>
+        )}
+        {!state.success && (
+          <>
+            <div className="my-6 flex items-center gap-3">
+              <div className="h-px flex-1 bg-border" />
+              <span className="text-xs text-muted-foreground">or</span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+            <GoogleSignInButton />
+          </>
         )}
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Already have an account?{" "}

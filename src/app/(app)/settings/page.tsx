@@ -18,6 +18,9 @@ export default async function SettingsPage() {
     user?.user_metadata?.default_vat_rate != null
       ? String(user.user_metadata.default_vat_rate as number)
       : "";
+  const hasPassword =
+    user?.identities?.some((identity) => identity.provider === "email") ??
+    true;
 
   return (
     <div className="space-y-6">
@@ -51,7 +54,14 @@ export default async function SettingsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ChangePasswordForm />
+          {!hasPassword && (
+            <p className="text-sm text-muted-foreground mb-4">
+              You signed up with Google, so there&apos;s no password yet. Set
+              one below if you&apos;d also like to log in with your email and
+              password.
+            </p>
+          )}
+          <ChangePasswordForm label={hasPassword ? "Update password" : "Set password"} />
         </CardContent>
       </Card>
       <Card>

@@ -9,7 +9,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const initialState: AuthActionState = {};
 
-export function ChangePasswordForm() {
+export function ChangePasswordForm({
+  label = "Update password",
+}: {
+  label?: string;
+}) {
   const [state, formAction, isPending] = useActionState(
     updatePasswordFromSettings,
     initialState,
@@ -40,7 +44,7 @@ export function ChangePasswordForm() {
         <p className="text-xs text-muted-foreground">At least 8 characters.</p>
       </div>
       <Button type="submit" disabled={isPending}>
-        {isPending ? "Updating..." : "Update password"}
+        {isPending ? "Saving..." : label}
       </Button>
     </form>
   );

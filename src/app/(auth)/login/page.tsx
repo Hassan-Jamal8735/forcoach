@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { GoogleSignInButton } from "../google-signin-button";
 
 const initialState: AuthActionState = {};
 
@@ -54,6 +55,12 @@ function LoginForm() {
   );
 }
 
+function GoogleSignInButtonWithRedirect() {
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirectTo") ?? "/dashboard";
+  return <GoogleSignInButton redirectTo={redirectTo} />;
+}
+
 export default function LoginPage() {
   return (
     <Card>
@@ -63,6 +70,14 @@ export default function LoginPage() {
       <CardContent>
         <Suspense fallback={null}>
           <LoginForm />
+        </Suspense>
+        <div className="my-6 flex items-center gap-3">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-xs text-muted-foreground">or</span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
+        <Suspense fallback={null}>
+          <GoogleSignInButtonWithRedirect />
         </Suspense>
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}

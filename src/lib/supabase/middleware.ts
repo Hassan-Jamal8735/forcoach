@@ -12,7 +12,9 @@ const AUTH_PATHS = [
 // Reference pages: viewable regardless of auth state, never redirected either way
 // (e.g. Google's OAuth verification reviewer needs to reach these while logged out,
 // and a logged-in user should still be able to re-read them).
-const ALWAYS_ACCESSIBLE_PATHS = ["/privacy", "/terms"];
+// "/auth/callback" is included because it must run before we know whether the
+// user is authenticated -- it's the route that establishes the session itself.
+const ALWAYS_ACCESSIBLE_PATHS = ["/privacy", "/terms", "/auth/callback"];
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
