@@ -16,9 +16,34 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+async function downloadInvoicePdf(invoiceId: string, invoiceNumber: string | null) {
+  const res = await fetch(`/api/invoices/${invoiceId}/pdf`);
+  if (!res.ok) {
+    let message = "Failed to download the PDF.";
+    try {
+      const body = await res.json();
+      if (typeof body?.message === "string") message = body.message;
+    } catch {
+      // response wasn't JSON either; keep the generic message
+    }
+    throw new Error(message);
+  }
+
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${invoiceNumber ?? "invoice-draft"}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
 export function InvoiceActions({ invoice }: { invoice: Invoice }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -26,10 +51,16 @@ export function InvoiceActions({ invoice }: { invoice: Invoice }) {
         <Button
           variant="outline"
           size="sm"
-          nativeButton={false}
-          render={<a href={`/api/invoices/${invoice.id}/pdf`} download />}
+          disabled={isDownloading}
+          onClick={() => {
+            setError(null);
+            setIsDownloading(true);
+            downloadInvoicePdf(invoice.id, invoice.invoice_number)
+              .catch((err) => setError(err instanceof Error ? err.message : "Failed to download the PDF."))
+              .finally(() => setIsDownloading(false));
+          }}
         >
-          Download PDF
+          {isDownloading ? "Downloading..." : "Download PDF"}
         </Button>
       )}
 
