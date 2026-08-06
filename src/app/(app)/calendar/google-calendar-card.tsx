@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
-import { CalendarClock, Link2, Loader2 } from "lucide-react";
+import { AlertTriangle, CalendarClock, Link2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -34,6 +34,11 @@ import {
   syncGoogleCalendar,
 } from "./actions";
 
+// The background sync runs every 6 hours; if it's been quiet for a full day,
+// that's a strong signal the connection has gone stale (revoked token, etc.)
+// rather than just an unlucky gap between runs.
+const STALE_AFTER_HOURS = 24;
+
 export function GoogleCalendarCard({
   status,
   studios,
@@ -58,6 +63,15 @@ export function GoogleCalendarCard({
   const notice = actionNotice ?? (googleFlag === "connected"
     ? "Connected! Choose a calendar below."
     : undefined);
+
+  const [isStale] = useState(
+    () =>
+      status.connected &&
+      status.calendarId != null &&
+      status.lastSyncedAt != null &&
+      Date.now() - new Date(status.lastSyncedAt).getTime() >
+        STALE_AFTER_HOURS * 60 * 60 * 1000,
+  );
 
   useEffect(() => {
     if (needsCalendarSelection && calendars === null) {
@@ -137,6 +151,16 @@ export function GoogleCalendarCard({
         {notice && !error && (
           <Alert>
             <AlertDescription>{notice}</AlertDescription>
+          </Alert>
+        )}
+        {isStale && !error && !notice && (
+          <Alert variant="destructive">
+            <AlertTriangle className="size-4" />
+            <AlertDescription>
+              This connection hasn&apos;t synced in over a day — it may have
+              been revoked. Click &ldquo;Sync now&rdquo; below, and if that
+              fails, disconnect and reconnect Google Calendar.
+            </AlertDescription>
           </Alert>
         )}
 
