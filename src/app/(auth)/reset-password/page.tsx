@@ -1,7 +1,6 @@
 "use client";
 
 import { Suspense, useActionState, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { updatePassword, type AuthActionState } from "../actions";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -13,35 +12,21 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 const initialState: AuthActionState = {};
 
 function ResetPasswordForm() {
-  const searchParams = useSearchParams();
   const [state, formAction, isPending] = useActionState(
     updatePassword,
     initialState,
   );
-  const code = searchParams.get("code");
   const [sessionError, setSessionError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const supabase = createClient();
-
-    async function establishSession() {
-      // Two recovery link formats depending on the Supabase project's auth
-      // flow setting: PKCE sends ?code=..., the implicit flow sends
-      // #access_token=...&type=recovery in the URL fragment. The fragment
-      // case is handled automatically by the browser client's
-      // detectSessionInUrl on init, but only once the client is actually
-      // instantiated — which is why we always create it here rather than
-      // only when a `code` param is present.
-      if (code) {
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
-        if (error) {
-          setSessionError(error.message);
-          setReady(true);
-          return;
-        }
-      }
-
+    // The recovery link routes through /auth/callback, which exchanges the
+    // PKCE code server-side and sets the session cookies before redirecting
+    // here. So by this point we only need to confirm a session exists — the
+    // exchange itself must not happen in the browser, because the code
+    // verifier lives in a server-set cookie.
+    async function checkSession() {
+      const supabase = createClient();
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -54,8 +39,8 @@ function ResetPasswordForm() {
       setReady(true);
     }
 
-    void establishSession();
-  }, [code]);
+    void checkSession();
+  }, []);
 
   if (sessionError) {
     return (

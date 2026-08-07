@@ -90,8 +90,13 @@ export async function requestPasswordReset(
     `${headerList.get("x-forwarded-proto") ?? "http"}://${headerList.get("host")}`;
 
   const supabase = await createClient();
+  // Point the recovery link at the server-side callback rather than straight
+  // at /reset-password. This request runs on the server, so the PKCE code
+  // verifier is written to a server-set cookie — it has to be exchanged on the
+  // server too. Exchanging it in the browser fails with "code verifier not
+  // found in storage" because that's a different storage context.
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${origin}/reset-password`,
+    redirectTo: `${origin}/auth/callback?redirectTo=%2Freset-password`,
   });
 
   if (error) {

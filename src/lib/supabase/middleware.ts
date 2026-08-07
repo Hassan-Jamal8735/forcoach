@@ -2,19 +2,22 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Auth flows: logged-in users get bounced to /dashboard from these.
-const AUTH_PATHS = [
-  "/login",
-  "/register",
-  "/forgot-password",
-  "/reset-password",
-];
+// "/reset-password" is deliberately NOT here — a password recovery link
+// establishes a real session before landing there, so bouncing "logged in"
+// users away would make it impossible to actually finish setting a password.
+const AUTH_PATHS = ["/login", "/register", "/forgot-password"];
 
 // Reference pages: viewable regardless of auth state, never redirected either way
 // (e.g. Google's OAuth verification reviewer needs to reach these while logged out,
 // and a logged-in user should still be able to re-read them).
 // "/auth/callback" is included because it must run before we know whether the
 // user is authenticated -- it's the route that establishes the session itself.
-const ALWAYS_ACCESSIBLE_PATHS = ["/privacy", "/terms", "/auth/callback"];
+const ALWAYS_ACCESSIBLE_PATHS = [
+  "/privacy",
+  "/terms",
+  "/auth/callback",
+  "/reset-password",
+];
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
