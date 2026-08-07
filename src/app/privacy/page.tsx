@@ -12,7 +12,7 @@ const LAST_UPDATED = "July 29, 2026";
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="theme-public flex min-h-screen flex-col bg-background">
       <MarketingNav />
       <main className="flex-1">
         <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">

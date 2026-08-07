@@ -163,7 +163,7 @@ const FAQ = [
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="theme-public flex min-h-screen flex-col bg-background">
       <MarketingNav />
 
       <main className="flex-1">

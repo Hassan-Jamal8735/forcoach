@@ -49,28 +49,32 @@
 }
 
 :root {
-  /* FORCOACH brand palette: Charcoal #1C1C1C, Off-white #F7F6F4, Taupe #6E5F5C,
-     Purple accent #6D4FE0 (buttons, links, active states, icons) */
+  /* FORCOACH brand palette: Charcoal #1C1C1C, Off-white #F7F6F4, Taupe #6E5F5C.
+     This is the palette used by the authenticated app (dashboard, calendar,
+     studios, earnings, invoices, settings). The purple accent lives in
+     `.theme-public` below and is scoped to public-facing pages only, per the
+     client's instruction that purple is for the marketing/public site rather
+     than the internal system. */
   --background: #f7f6f4;
   --foreground: #1c1c1c;
   --card: #ffffff;
   --card-foreground: #1c1c1c;
   --popover: #ffffff;
   --popover-foreground: #1c1c1c;
-  --primary: #6d4fe0;
-  --primary-foreground: #ffffff;
+  --primary: #1c1c1c;
+  --primary-foreground: #f7f6f4;
   --secondary: #ece9e6;
   --secondary-foreground: #1c1c1c;
   --muted: #ece9e6;
   --muted-foreground: #6e5f5c;
-  --accent: #6d4fe0;
-  --accent-foreground: #ffffff;
+  --accent: #6e5f5c;
+  --accent-foreground: #f7f6f4;
   --destructive: oklch(0.577 0.245 27.325);
   --border: #e1dcd8;
   --input: #e1dcd8;
-  --ring: #6d4fe0;
-  --chart-1: #6d4fe0;
-  --chart-2: #1c1c1c;
+  --ring: #6e5f5c;
+  --chart-1: #1c1c1c;
+  --chart-2: #6e5f5c;
   --chart-3: #a89a95;
   --chart-4: #c9c2be;
   --chart-5: #e1dcd8;
@@ -79,9 +83,25 @@
   --sidebar-foreground: #f7f6f4;
   --sidebar-primary: #f7f6f4;
   --sidebar-primary-foreground: #1c1c1c;
+  --sidebar-accent: #6e5f5c;
+  --sidebar-accent-foreground: #f7f6f4;
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: #a89a95;
+}
+
+/* Public-facing pages only: marketing home, privacy, terms, and the
+   pre-login auth screens. Purple accent (#6D4FE0) on buttons, links, icons,
+   and active states; backgrounds/text stay white/gray/charcoal. */
+.theme-public {
+  --primary: #6d4fe0;
+  --primary-foreground: #ffffff;
+  --accent: #6d4fe0;
+  --accent-foreground: #ffffff;
+  --ring: #6d4fe0;
+  --chart-1: #6d4fe0;
+  --chart-2: #1c1c1c;
   --sidebar-accent: #6d4fe0;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: #6d4fe0;
 }
 
@@ -92,20 +112,20 @@
   --card-foreground: #f7f6f4;
   --popover: #262626;
   --popover-foreground: #f7f6f4;
-  --primary: #8b72f0;
+  --primary: #f7f6f4;
   --primary-foreground: #1c1c1c;
   --secondary: #322d2c;
   --secondary-foreground: #f7f6f4;
   --muted: #322d2c;
   --muted-foreground: #a89a95;
-  --accent: #8b72f0;
-  --accent-foreground: #1c1c1c;
+  --accent: #6e5f5c;
+  --accent-foreground: #f7f6f4;
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: #8b72f0;
-  --chart-1: #8b72f0;
-  --chart-2: #f7f6f4;
+  --ring: #a89a95;
+  --chart-1: #f7f6f4;
+  --chart-2: #a89a95;
   --chart-3: #6e5f5c;
   --chart-4: #4a4241;
   --chart-5: #322d2c;
@@ -113,10 +133,10 @@
   --sidebar-foreground: #f7f6f4;
   --sidebar-primary: #f7f6f4;
   --sidebar-primary-foreground: #1c1c1c;
-  --sidebar-accent: #8b72f0;
-  --sidebar-accent-foreground: #1c1c1c;
+  --sidebar-accent: #6e5f5c;
+  --sidebar-accent-foreground: #f7f6f4;
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: #8b72f0;
+  --sidebar-ring: #a89a95;
 }
 
 @layer base {
