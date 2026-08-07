@@ -86,7 +86,7 @@ export function IcsFeedsCard({
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between gap-2">
+      <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
         <CardTitle className="flex items-center gap-2 text-base">
           <Rss className="size-4 text-muted-foreground" />
           ICS Feeds

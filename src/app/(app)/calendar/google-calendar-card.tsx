@@ -165,7 +165,7 @@ export function GoogleCalendarCard({
         )}
 
         {!status.connected && (
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground">
               Sync classes from your Google Calendar automatically.
             </p>

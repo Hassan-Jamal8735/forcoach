@@ -69,7 +69,7 @@ export function EventRow({
           )}
         </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {event.status === "excluded" ? (
           <Badge variant="destructive">Excluded</Badge>
         ) : event.studio_id && studioById.has(event.studio_id) ? (
