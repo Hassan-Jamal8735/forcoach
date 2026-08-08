@@ -7,9 +7,12 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+// Absolute (/#...) rather than bare (#...) so these still work from /privacy
+// and /terms — a bare fragment just sets the hash on the current page, which
+// has no such section to scroll to.
 const LINKS = [
-  { href: "#features", label: "Features" },
-  { href: "#how-it-works", label: "How it works" },
+  { href: "/#features", label: "Features" },
+  { href: "/#how-it-works", label: "How it works" },
 ];
 
 const PAGE_LINKS = [

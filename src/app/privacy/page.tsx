@@ -41,12 +41,11 @@ export default function PrivacyPolicyPage() {
             <section>
               <h2>1. Who operates FORCOACH (data controller)</h2>
               <p>
-                FORCOACH is operated by Combeau Aya Rose Mourtaday, a sole
-                trader (entrepreneur individuel) registered in France under
-                SIREN 104962998, which acts as the data controller for the
-                personal data described in this policy. For any privacy
-                question, to exercise your rights, or to request our
-                registered business address, contact{" "}
+                FORCOACH is operated by a sole trader (entrepreneur
+                individuel) registered in France under SIREN 104962998, which
+                acts as the data controller for the personal data described in
+                this policy. For any privacy question, to exercise your rights,
+                or to request our full registered business details, contact{" "}
                 <a href="mailto:contact@forcoach.io">contact@forcoach.io</a>.
               </p>
             </section>
