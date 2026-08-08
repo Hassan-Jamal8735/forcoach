@@ -44,6 +44,13 @@ export function InvoiceActions({ invoice }: { invoice: Invoice }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  // Each confirm dialog is controlled so it can be closed once its action
+  // actually succeeds. The confirm buttons call preventDefault to run async
+  // work, which also suppresses the dialog's own close behaviour, so without
+  // this the dialog stays open after the action has already completed.
+  const [generateOpen, setGenerateOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [archiveOpen, setArchiveOpen] = useState(false);
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -66,7 +73,7 @@ export function InvoiceActions({ invoice }: { invoice: Invoice }) {
 
       {invoice.status === "draft" && (
         <>
-          <AlertDialog>
+          <AlertDialog open={generateOpen} onOpenChange={setGenerateOpen}>
             <AlertDialogTrigger
               render={
                 <Button size="sm" disabled={isPending}>
@@ -91,6 +98,7 @@ export function InvoiceActions({ invoice }: { invoice: Invoice }) {
                     startTransition(async () => {
                       const result = await generateInvoice(invoice.id);
                       if (result.error) setError(result.error);
+                      else setGenerateOpen(false);
                     });
                   }}
                 >
@@ -100,7 +108,7 @@ export function InvoiceActions({ invoice }: { invoice: Invoice }) {
             </AlertDialogContent>
           </AlertDialog>
 
-          <AlertDialog>
+          <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
             <AlertDialogTrigger
               render={
                 <Button variant="ghost" size="sm" className="text-destructive">
@@ -124,6 +132,7 @@ export function InvoiceActions({ invoice }: { invoice: Invoice }) {
                     startTransition(async () => {
                       const result = await deleteInvoice(invoice.id);
                       if (result.error) setError(result.error);
+                      else setDeleteOpen(false);
                     });
                   }}
                 >
@@ -136,7 +145,7 @@ export function InvoiceActions({ invoice }: { invoice: Invoice }) {
       )}
 
       {invoice.status === "generated" && (
-        <AlertDialog>
+        <AlertDialog open={archiveOpen} onOpenChange={setArchiveOpen}>
           <AlertDialogTrigger
             render={
               <Button variant="outline" size="sm" disabled={isPending}>
@@ -161,6 +170,7 @@ export function InvoiceActions({ invoice }: { invoice: Invoice }) {
                   startTransition(async () => {
                     const result = await archiveInvoice(invoice.id);
                     if (result.error) setError(result.error);
+                    else setArchiveOpen(false);
                   });
                 }}
               >

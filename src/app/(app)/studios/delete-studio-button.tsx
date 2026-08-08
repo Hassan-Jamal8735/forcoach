@@ -24,9 +24,13 @@ export function DeleteStudioButton({
 }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  // Controlled so the dialog can close once the action succeeds: the confirm
+  // button calls preventDefault to run async work, which also suppresses the
+  // dialog's built-in close.
+  const [open, setOpen] = useState(false);
 
   return (
-    <AlertDialog>
+    <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger
         render={
           <Button variant="ghost" size="sm" className="text-destructive">
@@ -52,6 +56,7 @@ export function DeleteStudioButton({
               startTransition(async () => {
                 const result = await deleteStudio(id);
                 if (result.error) setError(result.error);
+                else setOpen(false);
               });
             }}
           >
