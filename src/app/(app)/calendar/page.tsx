@@ -5,6 +5,7 @@ import type { GoogleCalendarStatus } from "@/lib/api/google-calendar";
 import type { IcsFeed } from "@/lib/api/ics-feeds";
 import { Button } from "@/components/ui/button";
 import { CsvImportDialog } from "./csv-import-dialog";
+import { IcsUploadDialog } from "./ics-upload-dialog";
 import { ImportHistoryDialog } from "./import-history-dialog";
 import { EventFormDialog } from "./event-form-dialog";
 import { CalendarView } from "./calendar-view";
@@ -33,6 +34,7 @@ export default async function CalendarPage() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <ImportHistoryDialog />
+          <IcsUploadDialog studios={studioOptions} />
           <CsvImportDialog studios={studioOptions} />
           <EventFormDialog
             studios={studioOptions}

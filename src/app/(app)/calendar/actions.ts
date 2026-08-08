@@ -112,6 +112,68 @@ export async function deleteEvent(id: string): Promise<EventActionState> {
   return {};
 }
 
+export async function uploadIcsFile(
+  content: string,
+  defaultStudioId?: string,
+): Promise<{ error?: string; created?: number; updated?: number }> {
+  try {
+    const result = await apiFetch<{ created: number; updated: number }>(
+      "/ics-feeds/upload",
+      {
+        method: "POST",
+        body: JSON.stringify({ content, defaultStudioId }),
+      },
+    );
+    revalidatePath("/calendar");
+    revalidatePath("/dashboard");
+    revalidatePath("/earnings");
+    return { created: result.created, updated: result.updated };
+  } catch (err) {
+    return {
+      error:
+        err instanceof ApiError ? err.message : "Failed to import that file",
+    };
+  }
+}
+
+export async function setGoogleDefaultStudio(
+  studioId: string | null,
+): Promise<{ error?: string }> {
+  try {
+    await apiFetch("/calendar/google/default-studio", {
+      method: "POST",
+      body: JSON.stringify({ studioId }),
+    });
+    revalidatePath("/calendar");
+    return {};
+  } catch (err) {
+    return {
+      error:
+        err instanceof ApiError ? err.message : "Failed to set default studio",
+    };
+  }
+}
+
+export async function bulkAssignEvents(
+  ids: string[],
+  studioId: string | null,
+): Promise<{ error?: string; updated?: number; keptExcluded?: number }> {
+  try {
+    const result = await apiFetch<{ updated: number; keptExcluded: number }>(
+      "/events/bulk-assign",
+      { method: "POST", body: JSON.stringify({ ids, studioId }) },
+    );
+    revalidatePath("/calendar");
+    revalidatePath("/dashboard");
+    revalidatePath("/earnings");
+    return { updated: result.updated, keptExcluded: result.keptExcluded };
+  } catch (err) {
+    return {
+      error: err instanceof ApiError ? err.message : "Failed to assign studio",
+    };
+  }
+}
+
 export async function bulkDeleteEvents(
   ids: string[],
 ): Promise<{ error?: string; deleted?: number }> {

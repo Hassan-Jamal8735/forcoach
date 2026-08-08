@@ -32,6 +32,7 @@ import {
   getGoogleConnectUrl,
   selectGoogleCalendar,
   syncGoogleCalendar,
+  setGoogleDefaultStudio,
 } from "./actions";
 
 // The background sync runs every 6 hours; if it's been quiet for a full day,
@@ -261,10 +262,6 @@ export function GoogleCalendarCard({
                 {status.lastSyncedAt
                   ? `Last synced ${new Date(status.lastSyncedAt).toLocaleString()}`
                   : "Not synced yet"}
-                {status.defaultStudioId &&
-                  ` · New classes default to ${
-                    studios.find((s) => s.id === status.defaultStudioId)?.name ?? "a studio"
-                  }`}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -304,6 +301,58 @@ export function GoogleCalendarCard({
                 </AlertDialogContent>
               </AlertDialog>
             </div>
+          </div>
+        )}
+
+        {status.connected && status.calendarId && !pickerOpen && (
+          <div className="rounded-md border bg-muted/30 px-3 py-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="text-sm font-medium">Default studio</p>
+                <p className="text-xs text-muted-foreground">
+                  Newly synced classes are assigned to this studio
+                  automatically, so they count toward earnings and invoices
+                  straight away.
+                </p>
+              </div>
+              <Select
+                value={status.defaultStudioId ?? "none"}
+                onValueChange={(value) => {
+                  setError(undefined);
+                  startTransition(async () => {
+                    const result = await setGoogleDefaultStudio(
+                      !value || value === "none" ? null : value,
+                    );
+                    if (result.error) setError(result.error);
+                    else setNotice("Default studio updated.");
+                  });
+                }}
+              >
+                <SelectTrigger size="sm" className="min-w-48 text-xs">
+                  <SelectValue>
+                    {(value: string) =>
+                      value === "none"
+                        ? "No default studio"
+                        : (studios.find((s) => s.id === value)?.name ??
+                          "No default studio")
+                    }
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No default studio</SelectItem>
+                  {studios.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {studios.length === 0 && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                Add a studio first to use this.
+              </p>
+            )}
           </div>
         )}
       </CardContent>

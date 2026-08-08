@@ -25,6 +25,7 @@ import type { Event } from "@/lib/api/events";
 import type { Studio } from "@/lib/api/studios";
 import { EventRow, formatEventRange } from "./event-row";
 import { BulkDeleteButton } from "./bulk-delete-button";
+import { BulkAssignButton } from "./bulk-assign-button";
 
 const PAGE_SIZE = 20;
 
@@ -246,7 +247,7 @@ export function CalendarView({
                 Select all on this page
               </label>
               {selectedIds.size > 0 && (
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="text-sm text-muted-foreground">
                     {selectedIds.size} selected
                   </span>
@@ -257,6 +258,11 @@ export function CalendarView({
                   >
                     Clear
                   </Button>
+                  <BulkAssignButton
+                    ids={Array.from(selectedIds)}
+                    studios={studios.map((s) => ({ id: s.id, name: s.name }))}
+                    onDone={() => setSelectedIds(new Set())}
+                  />
                   <BulkDeleteButton
                     ids={Array.from(selectedIds)}
                     onDone={() => setSelectedIds(new Set())}
