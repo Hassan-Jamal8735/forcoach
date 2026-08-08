@@ -1,6 +1,8 @@
 import { apiFetch } from "@/lib/api/server-client";
 import type { Studio } from "@/lib/api/studios";
 import { cn } from "@/lib/utils";
+import { formatCurrency, type CurrencyCode } from "@/lib/currency";
+import { getUserCurrency } from "@/lib/user-currency";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,11 +10,8 @@ import { StudioFormDialog } from "./studio-form-dialog";
 import { DeleteStudioButton } from "./delete-studio-button";
 import { CoachMark } from "@/components/onboarding/coach-mark";
 
-function formatCompensation(studio: Studio) {
-  const amount = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "EUR",
-  }).format(studio.compensation_value);
+function formatCompensation(studio: Studio, currencyCode: CurrencyCode) {
+  const amount = formatCurrency(studio.compensation_value, currencyCode);
   return studio.compensation_type === "hourly"
     ? `${amount} / hour`
     : `${amount} / class`;
@@ -20,6 +19,7 @@ function formatCompensation(studio: Studio) {
 
 export default async function StudiosPage() {
   const studios = await apiFetch<Studio[]>("/studios");
+  const currencyCode = await getUserCurrency();
   const sorted = [...studios].sort((a, b) =>
     a.status === b.status ? 0 : a.status === "active" ? -1 : 1,
   );
@@ -85,7 +85,7 @@ export default async function StudiosPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-sm font-medium">
-                  {formatCompensation(studio)}
+                  {formatCompensation(studio, currencyCode)}
                 </p>
                 {(studio.email || studio.phone) && (
                   <p className="text-sm text-muted-foreground">

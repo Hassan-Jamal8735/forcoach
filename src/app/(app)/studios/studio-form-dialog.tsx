@@ -93,7 +93,7 @@ export function StudioFormDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="compensationValue">Rate (€)</Label>
+              <Label htmlFor="compensationValue">Rate</Label>
               <Input
                 id="compensationValue"
                 name="compensationValue"

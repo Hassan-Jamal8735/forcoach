@@ -10,15 +10,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { formatCurrency, type CurrencyCode } from "@/lib/currency";
+import { getUserCurrency } from "@/lib/user-currency";
 import { CreateInvoiceDialog } from "./create-invoice-dialog";
 import { InvoiceActions } from "./invoice-actions";
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "EUR",
-  }).format(value);
-}
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-GB", {
@@ -34,7 +29,13 @@ function statusVariant(status: Invoice["status"]) {
   return "outline" as const;
 }
 
-function InvoiceCard({ invoice }: { invoice: Invoice }) {
+function InvoiceCard({
+  invoice,
+  currencyCode,
+}: {
+  invoice: Invoice;
+  currencyCode: CurrencyCode;
+}) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-2">
@@ -57,7 +58,7 @@ function InvoiceCard({ invoice }: { invoice: Invoice }) {
         </div>
         <div className="text-right">
           <p className="text-lg font-semibold">
-            {formatCurrency(invoice.total)}
+            {formatCurrency(invoice.total, currencyCode)}
           </p>
           <p className="text-xs text-muted-foreground">
             Due {formatDate(invoice.due_date)}
@@ -80,6 +81,8 @@ export default async function InvoicesPage() {
     user?.user_metadata?.default_vat_rate != null
       ? String(user.user_metadata.default_vat_rate as number)
       : "";
+
+  const currencyCode = await getUserCurrency();
 
   const [invoices, studios] = await Promise.all([
     apiFetch<Invoice[]>("/invoices"),
@@ -120,7 +123,11 @@ export default async function InvoicesPage() {
       ) : (
         <div className="space-y-4">
           {active.map((invoice) => (
-            <InvoiceCard key={invoice.id} invoice={invoice} />
+            <InvoiceCard
+              key={invoice.id}
+              invoice={invoice}
+              currencyCode={currencyCode}
+            />
           ))}
         </div>
       )}
@@ -131,7 +138,11 @@ export default async function InvoicesPage() {
             Archived
           </h2>
           {archived.map((invoice) => (
-            <InvoiceCard key={invoice.id} invoice={invoice} />
+            <InvoiceCard
+              key={invoice.id}
+              invoice={invoice}
+              currencyCode={currencyCode}
+            />
           ))}
         </div>
       )}

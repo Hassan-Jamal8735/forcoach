@@ -5,11 +5,9 @@ import type { ImportActivity } from "@/lib/api/events";
 import type { EarningsSummary, EarningsTimeseries } from "@/lib/api/earnings";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { formatCurrency } from "@/lib/currency";
+import { getUserCurrency } from "@/lib/user-currency";
 
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "EUR",
-});
 
 function monthLabel(bucket: string) {
   const [year, month] = bucket.split("-").map(Number);
@@ -35,6 +33,9 @@ export default async function DashboardPage() {
       ),
       apiFetch<ImportActivity[]>("/events/import-activity"),
     ]);
+
+  const currencyCode = await getUserCurrency();
+  const money = (v: number) => formatCurrency(v, currencyCode);
 
   const activeStudios = studios.filter((s) => s.status === "active").length;
   const upcomingClasses = events.filter(
@@ -64,7 +65,7 @@ export default async function DashboardPage() {
     { label: "Total Hours (this month)", value: summary.totalHours.toFixed(1) },
     {
       label: "Total Earnings (this month)",
-      value: currency.format(summary.totalEarnings),
+      value: money(summary.totalEarnings),
     },
     { label: "Active Studios", value: String(activeStudios) },
     { label: "Upcoming Classes", value: String(upcomingClasses) },
@@ -168,7 +169,7 @@ export default async function DashboardPage() {
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-foreground/80">{s.studioName}</span>
                     <span className="text-muted-foreground">
-                      {currency.format(s.earnings)}
+                      {money(s.earnings)}
                     </span>
                   </div>
                   <div className="h-2 w-full overflow-hidden rounded-full bg-muted">

@@ -3,11 +3,9 @@ import { apiFetch } from "@/lib/api/server-client";
 import type { EarningsSummary, EarningsTimeseries } from "@/lib/api/earnings";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { formatCurrency } from "@/lib/currency";
+import { getUserCurrency } from "@/lib/user-currency";
 
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "EUR",
-});
 
 type RangeKey = "month" | "year" | "all";
 
@@ -57,6 +55,9 @@ export default async function EarningsPage({
   const { from, to } = rangeBounds(range);
   const granularity = range === "month" ? "day" : "month";
 
+  const currencyCode = await getUserCurrency();
+  const money = (v: number) => formatCurrency(v, currencyCode);
+
   const [monthSummary, yearSummary, rangeSummary, timeseries] =
     await Promise.all([
       apiFetch<EarningsSummary>(
@@ -74,12 +75,12 @@ export default async function EarningsPage({
     ]);
 
   const STATS = [
-    { label: "Monthly income", value: currency.format(monthSummary.totalEarnings) },
-    { label: "Yearly income", value: currency.format(yearSummary.totalEarnings) },
+    { label: "Monthly income", value: money(monthSummary.totalEarnings) },
+    { label: "Yearly income", value: money(yearSummary.totalEarnings) },
     { label: "Best studio", value: yearSummary.bestStudio ?? "—" },
     {
       label: "Avg. class rate",
-      value: currency.format(yearSummary.avgClassRate),
+      value: money(yearSummary.avgClassRate),
     },
   ];
 
@@ -214,7 +215,7 @@ export default async function EarningsPage({
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-foreground/80">{s.studioName}</span>
                     <span className="text-muted-foreground">
-                      {currency.format(s.earnings)}
+                      {money(s.earnings)}
                     </span>
                   </div>
                   <div className="h-2 w-full overflow-hidden rounded-full bg-muted">

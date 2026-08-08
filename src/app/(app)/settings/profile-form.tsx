@@ -14,6 +14,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { SUPPORTED_CURRENCIES } from "@/lib/currency";
+
 const initialState: AuthActionState = {};
 
 const TIMEZONES: string[] =
@@ -89,11 +91,16 @@ export function ProfileForm({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="EUR">EUR (€)</SelectItem>
+            {SUPPORTED_CURRENCIES.map((c) => (
+              <SelectItem key={c.code} value={c.code}>
+                {c.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
-          Only EUR is supported for calculations in this version.
+          Used to display your rates, earnings, and invoices. Amounts are not
+          converted between currencies.
         </p>
       </div>
       <div className="space-y-2">
