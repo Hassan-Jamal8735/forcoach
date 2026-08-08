@@ -49,17 +49,18 @@ export default function GlobalError({
         >
           Dashboard
         </Button>
+        {/* Full page loads rather than client navigation: if the router or
+            cached data is what's broken, a soft transition lands right back
+            here. */}
         <Button
           variant="outline"
-          nativeButton={false}
-          render={<a href="/" />}
+          onClick={() => window.location.assign("/")}
         >
           Home
         </Button>
         <Button
           variant="ghost"
-          nativeButton={false}
-          render={<a href="/login" />}
+          onClick={() => window.location.assign("/login")}
         >
           Log in again
         </Button>
