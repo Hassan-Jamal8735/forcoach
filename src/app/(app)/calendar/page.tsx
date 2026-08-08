@@ -6,6 +6,7 @@ import type { IcsFeed } from "@/lib/api/ics-feeds";
 import { Button } from "@/components/ui/button";
 import { CsvImportDialog } from "./csv-import-dialog";
 import { IcsUploadDialog } from "./ics-upload-dialog";
+import { RematchButton } from "./rematch-button";
 import { ImportHistoryDialog } from "./import-history-dialog";
 import { EventFormDialog } from "./event-form-dialog";
 import { CalendarView } from "./calendar-view";
@@ -21,6 +22,9 @@ export default async function CalendarPage() {
   ]);
 
   const studioOptions = studios.map((s) => ({ id: s.id, name: s.name }));
+  const unassignedCount = events.filter(
+    (e) => e.status === "unassigned",
+  ).length;
 
   return (
     <div className="space-y-6">
@@ -42,6 +46,8 @@ export default async function CalendarPage() {
           />
         </div>
       </div>
+
+      <RematchButton unassignedCount={unassignedCount} />
 
       <div className="grid gap-4 lg:grid-cols-2">
         <GoogleCalendarCard status={googleStatus} studios={studioOptions} />

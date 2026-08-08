@@ -146,6 +146,23 @@ export function EventFormDialog({
             </Select>
           </div>
           <div className="space-y-2">
+            <Label htmlFor="rateOverride">Rate for this class (optional)</Label>
+            <Input
+              id="rateOverride"
+              name="rateOverride"
+              type="number"
+              min="0"
+              step="0.01"
+              defaultValue={event?.rate_override ?? undefined}
+              placeholder="Leave blank to use the studio rate"
+            />
+            <p className="text-xs text-muted-foreground">
+              Overrides the studio&apos;s rate for this class only. If the
+              studio is paid hourly this is the hourly rate; if it&apos;s paid
+              per class, this is the amount for the class.
+            </p>
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="notes">Notes</Label>
             <Textarea id="notes" name="notes" defaultValue={event?.notes ?? undefined} />
           </div>

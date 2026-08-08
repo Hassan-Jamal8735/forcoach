@@ -14,6 +14,7 @@ export type Studio = {
   compensation_type: CompensationType;
   compensation_value: number;
   status: StudioStatus;
+  match_keywords: string[];
   metadata: Record<string, unknown>;
   created_at: string;
   updated_at: string;
@@ -30,4 +31,5 @@ export type StudioInput = {
   compensationType: CompensationType;
   compensationValue: number;
   status?: StudioStatus;
+  matchKeywords?: string[];
 };

@@ -48,6 +48,26 @@ export async function createInvoice(
   return {};
 }
 
+export async function updateLineItemRate(
+  invoiceId: string,
+  lineItemId: string,
+  rate: number,
+): Promise<InvoiceActionState> {
+  try {
+    await apiFetch(`/invoices/${invoiceId}/line-items/${lineItemId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ rate }),
+    });
+  } catch (err) {
+    return {
+      error: err instanceof ApiError ? err.message : "Failed to update the rate",
+    };
+  }
+  revalidatePath(`/invoices/${invoiceId}`);
+  revalidatePath("/invoices");
+  return {};
+}
+
 export async function generateInvoice(id: string): Promise<InvoiceActionState> {
   try {
     await apiFetch<Invoice>(`/invoices/${id}/generate`, { method: "POST" });

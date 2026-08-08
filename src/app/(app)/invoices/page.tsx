@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { apiFetch } from "@/lib/api/server-client";
 import { createClient } from "@/lib/supabase/server";
 import type { Invoice } from "@/lib/api/invoices";
@@ -41,7 +42,9 @@ function InvoiceCard({
       <CardHeader className="flex flex-row items-start justify-between gap-2">
         <div>
           <CardTitle className="text-lg flex items-center gap-2">
-            {invoice.studio_name}
+            <Link href={`/invoices/${invoice.id}`} className="hover:underline">
+              {invoice.studio_name}
+            </Link>
             <Badge variant={statusVariant(invoice.status)}>
               {invoice.status === "draft"
                 ? "Draft"
@@ -65,8 +68,14 @@ function InvoiceCard({
           </p>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex flex-wrap items-center justify-between gap-2">
         <InvoiceActions invoice={invoice} />
+        <Link
+          href={`/invoices/${invoice.id}`}
+          className="text-sm text-accent hover:underline"
+        >
+          View{invoice.status === "draft" ? " / edit rates" : " details"}
+        </Link>
       </CardContent>
     </Card>
   );

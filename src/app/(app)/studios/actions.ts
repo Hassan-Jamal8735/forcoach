@@ -27,6 +27,11 @@ function parseInput(formData: FormData): StudioInput {
       "hourly",
     compensationValue: Number(value("compensationValue") ?? 0),
     status: (value("status") as StudioInput["status"]) ?? "active",
+    // Comma-separated in the form; stored as an array.
+    matchKeywords: (value("matchKeywords") ?? "")
+      .split(",")
+      .map((k) => k.trim())
+      .filter(Boolean),
   };
 }
 

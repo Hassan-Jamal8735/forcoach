@@ -14,6 +14,7 @@ export type Event = {
   status: EventStatus;
   external_id: string | null;
   notes: string | null;
+  rate_override: number | null;
   created_at: string;
   updated_at: string;
 };
@@ -47,6 +48,7 @@ export type EventInput = {
   studioId?: string | null;
   status?: EventStatus;
   notes?: string;
+  rateOverride?: number | null;
 };
 
 export type ImportActivity = {

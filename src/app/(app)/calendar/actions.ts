@@ -52,6 +52,7 @@ function parseEventInput(formData: FormData): EventInput {
   const startTime = value("startTime");
   const endDate = value("endDate");
   const endTime = value("endTime");
+  const rawRate = value("rateOverride");
   const rawStudioId = value("studioId");
   const studioId = rawStudioId && rawStudioId !== "none" ? rawStudioId : undefined;
 
@@ -66,6 +67,8 @@ function parseEventInput(formData: FormData): EventInput {
       : "",
     studioId: studioId ?? null,
     status: studioId ? "assigned" : "unassigned",
+    // Empty input clears the override and falls back to the studio's rate.
+    rateOverride: rawRate ? Number(rawRate) : null,
   };
 }
 
@@ -150,6 +153,30 @@ export async function setGoogleDefaultStudio(
     return {
       error:
         err instanceof ApiError ? err.message : "Failed to set default studio",
+    };
+  }
+}
+
+export async function rematchUnassignedEvents(): Promise<{
+  error?: string;
+  matched?: number;
+  stillUnassigned?: number;
+}> {
+  try {
+    const result = await apiFetch<{ matched: number; stillUnassigned: number }>(
+      "/events/rematch-unassigned",
+      { method: "POST" },
+    );
+    revalidatePath("/calendar");
+    revalidatePath("/dashboard");
+    revalidatePath("/earnings");
+    return {
+      matched: result.matched,
+      stillUnassigned: result.stillUnassigned,
+    };
+  } catch (err) {
+    return {
+      error: err instanceof ApiError ? err.message : "Failed to match studios",
     };
   }
 }
