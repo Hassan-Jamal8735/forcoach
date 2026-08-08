@@ -29,18 +29,39 @@ export default function GlobalError({
           Something went wrong
         </h1>
         <p className="text-muted-foreground">
-          An unexpected error occurred. You can try again, or head back to
-          your dashboard.
+          An unexpected error occurred. Try again, and if it keeps happening
+          use one of the links below.
         </p>
+        {error.digest && (
+          <p className="text-xs text-muted-foreground">
+            Reference: {error.digest}
+          </p>
+        )}
       </div>
-      <div className="flex gap-3">
+      {/* Both a retry and routes that don't depend on the API, so a backend
+          problem can't leave someone with nowhere to go. */}
+      <div className="flex flex-wrap items-center justify-center gap-3">
         <Button onClick={() => reset()}>Try again</Button>
         <Button
           variant="outline"
           nativeButton={false}
           render={<Link href="/dashboard" />}
         >
-          Go to dashboard
+          Dashboard
+        </Button>
+        <Button
+          variant="outline"
+          nativeButton={false}
+          render={<a href="/" />}
+        >
+          Home
+        </Button>
+        <Button
+          variant="ghost"
+          nativeButton={false}
+          render={<a href="/login" />}
+        >
+          Log in again
         </Button>
       </div>
     </div>
