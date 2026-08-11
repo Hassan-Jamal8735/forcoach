@@ -1,6 +1,11 @@
-import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
+import { apiFetch } from "@/lib/api/server-client";
+import type { Studio } from "@/lib/api/studios";
+import type { GoogleCalendarStatus } from "@/lib/api/google-calendar";
+import type { IcsFeed } from "@/lib/api/ics-feeds";
+import { GoogleCalendarCard } from "@/app/(app)/calendar/google-calendar-card";
+import { IcsFeedsCard } from "@/app/(app)/calendar/ics-feeds-card";
 import { ProfileForm } from "./profile-form";
 import { ChangePasswordForm } from "./change-password-form";
 
@@ -22,12 +27,19 @@ export default async function SettingsPage() {
     user?.identities?.some((identity) => identity.provider === "email") ??
     true;
 
+  const [studios, googleStatus, icsFeeds] = await Promise.all([
+    apiFetch<Studio[]>("/studios"),
+    apiFetch<GoogleCalendarStatus>("/calendar/google/status"),
+    apiFetch<IcsFeed[]>("/ics-feeds"),
+  ]);
+  const studioOptions = studios.map((st) => ({ id: st.id, name: st.name }));
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold">Settings</h1>
         <p className="text-muted-foreground mt-1">
-          Profile, account, calendar connections, and feeds.
+          Profile, account, and where your classes come from.
         </p>
       </div>
       <Card>
@@ -47,6 +59,19 @@ export default async function SettingsPage() {
           />
         </CardContent>
       </Card>
+      <div className="space-y-2">
+        <div>
+          <h2 className="text-base font-medium">Where your classes come from</h2>
+          <p className="text-sm text-muted-foreground">
+            Connect a calendar once and your classes sync in automatically.
+            You only need to set this up once.
+          </p>
+        </div>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <GoogleCalendarCard status={googleStatus} studios={studioOptions} />
+          <IcsFeedsCard feeds={icsFeeds} studios={studioOptions} />
+        </div>
+      </div>
       <Card>
         <CardHeader>
           <CardTitle className="text-base font-normal text-muted-foreground">
@@ -62,20 +87,6 @@ export default async function SettingsPage() {
             </p>
           )}
           <ChangePasswordForm label={hasPassword ? "Update password" : "Set password"} />
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base font-normal text-muted-foreground">
-            Calendar connections & feeds
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          Manage your Google Calendar connection and ICS feeds from the{" "}
-          <Link href="/calendar" className="text-accent hover:underline">
-            Calendar
-          </Link>{" "}
-          page.
         </CardContent>
       </Card>
     </div>

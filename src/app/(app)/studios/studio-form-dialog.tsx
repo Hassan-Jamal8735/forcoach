@@ -167,18 +167,23 @@ export function StudioFormDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="matchKeywords">Auto-assign keywords</Label>
+            <Label htmlFor="matchKeywords">
+              Extra matching words{" "}
+              <span className="font-normal text-muted-foreground">
+                — optional, usually not needed
+              </span>
+            </Label>
             <Input
               id="matchKeywords"
               name="matchKeywords"
               defaultValue={(studio?.match_keywords ?? []).join(", ")}
-              placeholder="e.g. Banote, Victor Hugo"
+              placeholder="e.g. Victor Hugo"
             />
             <p className="text-xs text-muted-foreground">
-              Imported classes whose title or location contains any of these
-              are assigned to this studio automatically. The studio name is
-              always matched, so this is only needed for extra spellings.
-              Separate with commas.
+              Imported classes are matched to this studio by its name
+              automatically. Only add words here if your classes refer to the
+              studio differently, for example by street name. Separate with
+              commas.
             </p>
           </div>
           <div className="space-y-2">
