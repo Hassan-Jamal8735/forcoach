@@ -33,3 +33,19 @@ export type StudioInput = {
   status?: StudioStatus;
   matchKeywords?: string[];
 };
+
+export type StudioSuggestion = {
+  label: string;
+  keyword: string;
+  classCount: number;
+  sampleTitle: string;
+  /** Derived from the class title because the class had no usable location. */
+  fromTitle: boolean;
+};
+
+export type SuggestedStudioInput = {
+  name: string;
+  keyword?: string;
+  compensationType: CompensationType;
+  compensationValue: number;
+};

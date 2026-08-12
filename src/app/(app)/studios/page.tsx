@@ -1,5 +1,5 @@
 import { apiFetch } from "@/lib/api/server-client";
-import type { Studio } from "@/lib/api/studios";
+import type { Studio, StudioSuggestion } from "@/lib/api/studios";
 import { cn } from "@/lib/utils";
 import { formatCurrency, type CurrencyCode } from "@/lib/currency";
 import { getUserCurrency } from "@/lib/user-currency";
@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { StudioFormDialog } from "./studio-form-dialog";
 import { DeleteStudioButton } from "./delete-studio-button";
 import { CoachMark } from "@/components/onboarding/coach-mark";
+import { SuggestedStudios } from "./suggested-studios";
 
 function formatCompensation(studio: Studio, currencyCode: CurrencyCode) {
   const amount = formatCurrency(studio.compensation_value, currencyCode);
@@ -18,8 +19,11 @@ function formatCompensation(studio: Studio, currencyCode: CurrencyCode) {
 }
 
 export default async function StudiosPage() {
-  const studios = await apiFetch<Studio[]>("/studios");
-  const currencyCode = await getUserCurrency();
+  const [studios, suggestions, currencyCode] = await Promise.all([
+    apiFetch<Studio[]>("/studios"),
+    apiFetch<StudioSuggestion[]>("/studios/suggestions"),
+    getUserCurrency(),
+  ]);
   const sorted = [...studios].sort((a, b) =>
     a.status === b.status ? 0 : a.status === "active" ? -1 : 1,
   );
@@ -33,7 +37,9 @@ export default async function StudiosPage() {
             Manage the studios you coach at and their compensation rates.
           </p>
         </div>
-        {sorted.length === 0 ? (
+        {/* Only nudge them to add one by hand when we have nothing to suggest,
+            otherwise the tip contradicts the panel offering to create them. */}
+        {sorted.length === 0 && suggestions.length === 0 ? (
           <CoachMark
             id="studios-add"
             align="end"
@@ -46,6 +52,11 @@ export default async function StudiosPage() {
           <StudioFormDialog trigger={<Button>Add studio</Button>} />
         )}
       </div>
+
+      <SuggestedStudios
+        suggestions={suggestions}
+        currencyCode={currencyCode}
+      />
 
       {sorted.length === 0 ? (
         <Card>

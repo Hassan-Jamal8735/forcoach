@@ -2,7 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { apiFetch, ApiError } from "@/lib/api/server-client";
-import type { Studio, StudioInput } from "@/lib/api/studios";
+import type {
+  Studio,
+  StudioInput,
+  SuggestedStudioInput,
+} from "@/lib/api/studios";
 
 export type StudioActionState = {
   error?: string;
@@ -76,4 +80,25 @@ export async function deleteStudio(id: string): Promise<StudioActionState> {
   }
   revalidatePath("/studios");
   return {};
+}
+
+export async function createStudiosFromSuggestions(
+  studios: SuggestedStudioInput[],
+): Promise<{ error?: string; created?: number; matched?: number }> {
+  try {
+    const result = await apiFetch<{ created: number; matched: number }>(
+      "/studios/from-suggestions",
+      { method: "POST", body: JSON.stringify({ studios }) },
+    );
+    revalidatePath("/studios");
+    revalidatePath("/calendar");
+    revalidatePath("/dashboard");
+    revalidatePath("/earnings");
+    return { created: result.created, matched: result.matched };
+  } catch (err) {
+    return {
+      error:
+        err instanceof ApiError ? err.message : "Failed to create the studios",
+    };
+  }
 }
