@@ -47,7 +47,7 @@ export function SidebarNav() {
       <div className="space-y-1 border-t border-sidebar-foreground/10 px-3 py-3">
         <Link href="/guide" className={linkClass(pathname.startsWith("/guide"))}>
           <BookOpen className="size-4" />
-          User Guide
+          Help Centre
         </Link>
         <button
           type="button"

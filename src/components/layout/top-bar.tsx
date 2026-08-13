@@ -45,7 +45,7 @@ export function TopBar({ displayName }: { displayName: string }) {
             Profile
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => router.push("/guide")}>
-            User Guide
+            Help Centre
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onClick={() => logout()}>
