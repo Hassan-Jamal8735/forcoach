@@ -21,7 +21,7 @@ export default async function AppLayout({
   return (
     <div className="flex min-h-screen">
       <SidebarNav />
-      <div className="flex flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col">
         <TopBar displayName={displayName} />
         <main className="flex-1 px-4 py-6 pb-20 md:px-8 md:pb-6">
           {children}

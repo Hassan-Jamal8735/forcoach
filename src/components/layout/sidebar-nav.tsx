@@ -20,7 +20,9 @@ export function SidebarNav() {
     );
 
   return (
-    <aside className="hidden md:flex md:w-64 md:flex-col bg-sidebar text-sidebar-foreground">
+    // Pinned to the viewport rather than growing with the page, so the nav and
+    // the footer below it stay put on long pages like the Help Centre.
+    <aside className="hidden md:sticky md:top-0 md:flex md:h-screen md:w-64 md:shrink-0 md:flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex items-center gap-2 px-6 py-6">
         <Image
           src="/brand/logo-icon-transparent.png"
@@ -32,7 +34,7 @@ export function SidebarNav() {
           FORCOACH
         </span>
       </div>
-      <nav className="flex-1 space-y-1 px-3">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname.startsWith(item.href);
           const Icon = item.icon;
