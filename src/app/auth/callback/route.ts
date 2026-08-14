@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-const NEW_USER_WINDOW_MS = 60_000;
-
 // Behind a reverse proxy (Caddy -> container), `request.url` reports the
 // container's own bind address (http://0.0.0.0:3000), so redirects built from
 // it send the browser somewhere unreachable. Prefer the configured public URL,
@@ -39,22 +37,6 @@ export async function GET(request: Request) {
 
   if (exchangeError || !data.user) {
     return NextResponse.redirect(`${origin}/login?error=oauth_failed`);
-  }
-
-  const isNewUser =
-    Date.now() - new Date(data.user.created_at).getTime() < NEW_USER_WINDOW_MS;
-
-  if (isNewUser) {
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
-      await fetch(`${apiUrl}/notifications/new-signup`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: data.user.email }),
-      });
-    } catch {
-      // Non-critical: don't block sign-in if the admin notification fails to send.
-    }
   }
 
   return NextResponse.redirect(`${origin}${redirectTo}`);

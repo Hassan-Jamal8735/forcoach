@@ -56,17 +56,6 @@ export async function register(
     return { error: error.message };
   }
 
-  try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
-    await fetch(`${apiUrl}/notifications/new-signup`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
-  } catch {
-    // Non-critical: don't fail registration if the admin notification fails to send.
-  }
-
   return {
     success:
       "Account created. Check your email to confirm your address before logging in.",
