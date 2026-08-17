@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Accordion,
@@ -182,11 +183,27 @@ const GROUPS: GuideGroup[] = [
                   <strong>Schedule</strong>, and tap{" "}
                   <strong>Export My Schedule</strong>.
                 </li>
+              </ol>
+              <Image
+                src="/help/mindbody-export-settings.png"
+                alt="Mindbody Business app Settings screen, showing Export My Schedule under the Schedule section"
+                width={923}
+                height={1300}
+                className="mt-2 max-w-xs rounded-md border"
+              />
+              <ol className="list-decimal space-y-1 pl-5" start={5}>
                 <li>
                   Tap <strong>Copy Link</strong>, then paste it into
                   FORCOACH.
                 </li>
               </ol>
+              <Image
+                src="/help/mindbody-export-popup.png"
+                alt="Export My Schedule popup with Export, Copy Link, and Cancel options"
+                width={923}
+                height={1300}
+                className="mt-2 max-w-xs rounded-md border"
+              />
               <p className="mt-1 text-xs">
                 This syncs per studio, so repeat it for each Mindbody studio
                 you teach at.

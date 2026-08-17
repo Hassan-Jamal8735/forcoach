@@ -21,6 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { FindFeedLinkDialog } from "./find-feed-link-dialog";
 
 // Rough guard so a mis-picked file doesn't get posted as a giant string.
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -112,7 +113,10 @@ export function IcsUploadDialog({
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="icsFile">Calendar file</Label>
+            <div className="flex items-center justify-between gap-2">
+              <Label htmlFor="icsFile">Calendar file</Label>
+              <FindFeedLinkDialog context="upload" />
+            </div>
             <Input
               id="icsFile"
               type="file"
