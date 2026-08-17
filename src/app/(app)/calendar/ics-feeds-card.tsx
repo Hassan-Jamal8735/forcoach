@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { IcsFeed } from "@/lib/api/ics-feeds";
 import { createIcsFeed, deleteIcsFeed, syncIcsFeed } from "./actions";
+import { FindFeedLinkDialog } from "./find-feed-link-dialog";
 
 export function IcsFeedsCard({
   feeds,
@@ -149,7 +150,10 @@ export function IcsFeedsCard({
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="ics-url">Feed URL (.ics link)</Label>
+              <div className="flex items-center justify-between gap-2">
+                <Label htmlFor="ics-url">Feed URL (.ics link)</Label>
+                <FindFeedLinkDialog />
+              </div>
               <Input
                 id="ics-url"
                 placeholder="https://..."

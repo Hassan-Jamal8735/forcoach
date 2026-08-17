@@ -152,6 +152,71 @@ const GROUPS: GuideGroup[] = [
         ),
       },
       {
+        id: "finding-feed-link",
+        question: "Finding your calendar export link",
+        content: (
+          <div className="space-y-3">
+            <p>
+              Each booking platform calls this something slightly different,
+              but the idea is the same: it gives you a link ending in{" "}
+              <code>.ics</code> that you paste into{" "}
+              <Link href="/settings" className="text-accent hover:underline">
+                Settings
+              </Link>{" "}
+              under ICS Feeds.
+            </p>
+            <div>
+              <p className="font-medium text-foreground">Mindbody</p>
+              <ol className="list-decimal space-y-1 pl-5">
+                <li>
+                  Open the <strong>Mindbody Business</strong> app — not the
+                  regular Mindbody app clients use to book classes.
+                </li>
+                <li>
+                  Log in with your <strong>staff</strong> login. This
+                  won&apos;t appear on an owner login, even if you also
+                  teach.
+                </li>
+                <li>
+                  Tap <strong>More &rarr; Settings</strong>, scroll to{" "}
+                  <strong>Schedule</strong>, and tap{" "}
+                  <strong>Export My Schedule</strong>.
+                </li>
+                <li>
+                  Tap <strong>Copy Link</strong>, then paste it into
+                  FORCOACH.
+                </li>
+              </ol>
+              <p className="mt-1 text-xs">
+                This syncs per studio, so repeat it for each Mindbody studio
+                you teach at.
+              </p>
+            </div>
+            <div>
+              <p className="font-medium text-foreground">Bsport</p>
+              <p>
+                Look under your <strong>Settings</strong> or{" "}
+                <strong>Calendar</strong> section for an export or sync
+                option, and copy the link it gives you.
+              </p>
+            </div>
+            <div>
+              <p className="font-medium text-foreground">
+                Other platforms
+              </p>
+              <p>
+                Check <strong>Settings</strong> for wording like{" "}
+                <strong>&ldquo;Export calendar&rdquo;</strong>,{" "}
+                <strong>&ldquo;Sync calendar&rdquo;</strong>, or{" "}
+                <strong>&ldquo;iCal / ICS link&rdquo;</strong>. Not finding
+                it? Tell us which platform you use and we&apos;ll help you
+                track it down.
+              </p>
+            </div>
+          </div>
+        ),
+      },
+      {
         id: "editing-classes",
         question: "Editing and excluding classes",
         content: (
