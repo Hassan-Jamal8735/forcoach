@@ -35,6 +35,32 @@ function timeInputValue(iso?: string) {
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
+const DURATION_PRESETS = [
+  { value: "15", label: "15 min" },
+  { value: "30", label: "30 min" },
+  { value: "45", label: "45 min" },
+  { value: "60", label: "1 h" },
+  { value: "90", label: "1 h 30" },
+  { value: "120", label: "2 h" },
+  { value: "custom", label: "Custom" },
+] as const;
+
+function minutesBetween(start?: string, end?: string): number | null {
+  if (!start || !end) return null;
+  const diff = (new Date(end).getTime() - new Date(start).getTime()) / 60_000;
+  return Number.isFinite(diff) && diff > 0 ? diff : null;
+}
+
+// Adds minutes to a "YYYY-MM-DD" + "HH:MM" pair, returning the same shape.
+function addMinutes(date: string, time: string, minutes: number) {
+  const start = new Date(`${date}T${time}`);
+  const end = new Date(start.getTime() + minutes * 60_000);
+  return {
+    date: `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, "0")}-${String(end.getDate()).padStart(2, "0")}`,
+    time: `${String(end.getHours()).padStart(2, "0")}:${String(end.getMinutes()).padStart(2, "0")}`,
+  };
+}
+
 export function EventFormDialog({
   event,
   studios,
@@ -47,6 +73,39 @@ export function EventFormDialog({
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
+
+  const initialMinutes = minutesBetween(event?.start_time, event?.end_time);
+  const initialPreset = !event
+    ? "60" // new classes default to 1h, the common case
+    : DURATION_PRESETS.some(
+          (p) => p.value !== "custom" && Number(p.value) === initialMinutes,
+        )
+      ? String(initialMinutes)
+      : "custom";
+
+  const [startDate, setStartDate] = useState(
+    dateInputValue(event?.start_time) ?? "",
+  );
+  const [startTime, setStartTime] = useState(
+    timeInputValue(event?.start_time) ?? "",
+  );
+  const [duration, setDuration] = useState(initialPreset);
+  const [endDate, setEndDate] = useState(
+    dateInputValue(event?.end_time) ?? "",
+  );
+  const [endTime, setEndTime] = useState(
+    timeInputValue(event?.end_time) ?? "",
+  );
+
+  // Keep the computed end in sync while a preset (not "custom") is active.
+  function applyDuration(nextDuration: string, date = startDate, time = startTime) {
+    setDuration(nextDuration);
+    if (nextDuration !== "custom" && date && time) {
+      const computed = addMinutes(date, time, Number(nextDuration));
+      setEndDate(computed.date);
+      setEndTime(computed.time);
+    }
+  }
 
   return (
     <Dialog
@@ -93,7 +152,11 @@ export function EventFormDialog({
                 name="startDate"
                 type="date"
                 required
-                defaultValue={dateInputValue(event?.start_time)}
+                value={startDate}
+                onChange={(e) => {
+                  setStartDate(e.target.value);
+                  applyDuration(duration, e.target.value, startTime);
+                }}
               />
             </div>
             <div className="space-y-2">
@@ -103,32 +166,60 @@ export function EventFormDialog({
                 name="startTime"
                 type="time"
                 required
-                defaultValue={timeInputValue(event?.start_time)}
+                value={startTime}
+                onChange={(e) => {
+                  setStartTime(e.target.value);
+                  applyDuration(duration, startDate, e.target.value);
+                }}
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="endDate">End date *</Label>
-              <Input
-                id="endDate"
-                name="endDate"
-                type="date"
-                required
-                defaultValue={dateInputValue(event?.end_time)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="endTime">End time *</Label>
-              <Input
-                id="endTime"
-                name="endTime"
-                type="time"
-                required
-                defaultValue={timeInputValue(event?.end_time)}
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="duration">Duration *</Label>
+            <Select value={duration} onValueChange={(v) => applyDuration(v ?? "custom")}>
+              <SelectTrigger id="duration">
+                <SelectValue>
+                  {(value: string) =>
+                    DURATION_PRESETS.find((p) => p.value === value)?.label ??
+                    "Custom"
+                  }
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {DURATION_PRESETS.map((p) => (
+                  <SelectItem key={p.value} value={p.value}>
+                    {p.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+          {duration === "custom" && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="endDate">End date *</Label>
+                <Input
+                  id="endDate"
+                  type="date"
+                  required
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="endTime">End time *</Label>
+                <Input
+                  id="endTime"
+                  type="time"
+                  required
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
+          <input type="hidden" name="endDate" value={endDate} />
+          <input type="hidden" name="endTime" value={endTime} />
           <div className="space-y-2">
             <Label htmlFor="studioId">Studio</Label>
             <Select name="studioId" defaultValue={event?.studio_id ?? "none"}>
