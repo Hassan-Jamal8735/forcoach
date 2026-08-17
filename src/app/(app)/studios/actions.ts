@@ -18,6 +18,22 @@ function parseInput(formData: FormData): StudioInput {
     return typeof raw === "string" && raw.trim() !== "" ? raw.trim() : undefined;
   };
 
+  const compensationType =
+    (value("compensationType") as StudioInput["compensationType"]) ??
+    "hourly";
+
+  // Tiers are serialized as JSON into a hidden field, since a form field
+  // can't naturally carry a variable-length list of {min, max, rate} rows.
+  const rateTiersRaw = value("rateTiers");
+  let rateTiers: StudioInput["rateTiers"];
+  if (compensationType === "tiered" && rateTiersRaw) {
+    try {
+      rateTiers = JSON.parse(rateTiersRaw);
+    } catch {
+      rateTiers = [];
+    }
+  }
+
   return {
     name: value("name") ?? "",
     referenceId: value("referenceId"),
@@ -26,10 +42,12 @@ function parseInput(formData: FormData): StudioInput {
     phone: value("phone"),
     address: value("address"),
     notes: value("notes"),
-    compensationType:
-      (value("compensationType") as StudioInput["compensationType"]) ??
-      "hourly",
-    compensationValue: Number(value("compensationValue") ?? 0),
+    compensationType,
+    compensationValue:
+      compensationType === "tiered"
+        ? undefined
+        : Number(value("compensationValue") ?? 0),
+    rateTiers,
     status: (value("status") as StudioInput["status"]) ?? "active",
     // Comma-separated in the form; stored as an array.
     matchKeywords: (value("matchKeywords") ?? "")

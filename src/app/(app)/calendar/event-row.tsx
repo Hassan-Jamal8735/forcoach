@@ -37,7 +37,7 @@ export function EventRow({
 }: {
   event: Event;
   studioById: Map<string, string>;
-  studioOptions: { id: string; name: string }[];
+  studioOptions: { id: string; name: string; compensation_type?: string }[];
   showDate?: boolean;
   selectable?: boolean;
   selected?: boolean;

@@ -53,7 +53,11 @@ export function CalendarView({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const studioById = new Map(studios.map((s) => [s.id, s.name]));
-  const studioOptions = studios.map((s) => ({ id: s.id, name: s.name }));
+  const studioOptions = studios.map((s) => ({
+    id: s.id,
+    name: s.name,
+    compensation_type: s.compensation_type,
+  }));
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();

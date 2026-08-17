@@ -15,6 +15,7 @@ export type EarningsSummary = {
   avgClassRate: number;
   bestStudio: string | null;
   pendingCount: number;
+  pendingAttendanceCount: number;
   studioBreakdown: StudioBreakdownEntry[];
 };
 

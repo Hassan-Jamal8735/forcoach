@@ -67,12 +67,15 @@ export function EventFormDialog({
   trigger,
 }: {
   event?: Event;
-  studios: { id: string; name: string }[];
+  studios: { id: string; name: string; compensation_type?: string }[];
   trigger: React.ReactElement;
 }) {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
+  const [studioId, setStudioId] = useState(event?.studio_id ?? "none");
+  const selectedStudio = studios.find((s) => s.id === studioId);
+  const isTiered = selectedStudio?.compensation_type === "tiered";
 
   const initialMinutes = minutesBetween(event?.start_time, event?.end_time);
   const initialPreset = !event
@@ -222,9 +225,20 @@ export function EventFormDialog({
           <input type="hidden" name="endTime" value={endTime} />
           <div className="space-y-2">
             <Label htmlFor="studioId">Studio</Label>
-            <Select name="studioId" defaultValue={event?.studio_id ?? "none"}>
+            <Select
+              name="studioId"
+              value={studioId}
+              onValueChange={(v) => setStudioId(v ?? "none")}
+            >
               <SelectTrigger id="studioId">
-                <SelectValue placeholder="No studio" />
+                <SelectValue placeholder="No studio">
+                  {(value: string) =>
+                    value === "none"
+                      ? "No studio"
+                      : (studios.find((s) => s.id === value)?.name ??
+                        "No studio")
+                  }
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">No studio</SelectItem>
@@ -236,6 +250,25 @@ export function EventFormDialog({
               </SelectContent>
             </Select>
           </div>
+          {isTiered && (
+            <div className="space-y-2">
+              <Label htmlFor="attendanceCount">Attendance</Label>
+              <Input
+                id="attendanceCount"
+                name="attendanceCount"
+                type="number"
+                min="0"
+                step="1"
+                defaultValue={event?.attendance_count ?? undefined}
+                placeholder="How many people attended"
+              />
+              <p className="text-xs text-muted-foreground">
+                This studio pays by how many people showed up. Enter the
+                count to get the right rate — leave blank if you don&apos;t
+                know it yet.
+              </p>
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="rateOverride">Rate for this class (optional)</Label>
             <Input
@@ -248,9 +281,10 @@ export function EventFormDialog({
               placeholder="Leave blank to use the studio rate"
             />
             <p className="text-xs text-muted-foreground">
-              Overrides the studio&apos;s rate for this class only. If the
-              studio is paid hourly this is the hourly rate; if it&apos;s paid
-              per class, this is the amount for the class.
+              Overrides the studio&apos;s rate for this class only.{" "}
+              {isTiered
+                ? "If set, this replaces the attendance-based rate for this class."
+                : "If the studio is paid hourly this is the hourly rate; if it's paid per class, this is the amount for the class."}
             </p>
           </div>
           <div className="space-y-2">

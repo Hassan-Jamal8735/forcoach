@@ -16,7 +16,11 @@ export default async function CalendarPage() {
     apiFetch<Studio[]>("/studios"),
   ]);
 
-  const studioOptions = studios.map((s) => ({ id: s.id, name: s.name }));
+  const studioOptions = studios.map((s) => ({
+    id: s.id,
+    name: s.name,
+    compensation_type: s.compensation_type,
+  }));
   const unassignedCount = events.filter(
     (e) => e.status === "unassigned",
   ).length;

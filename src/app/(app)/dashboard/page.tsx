@@ -111,6 +111,23 @@ export default async function DashboardPage() {
         </Card>
       )}
 
+      {summary.pendingAttendanceCount > 0 && (
+        <Card className="border-accent/30">
+          <CardContent className="flex items-center justify-between py-4 text-sm">
+            <span>
+              {summary.pendingAttendanceCount} class
+              {summary.pendingAttendanceCount === 1 ? "" : "es"} this month{" "}
+              {summary.pendingAttendanceCount === 1 ? "needs" : "need"} an
+              attendance count before {summary.pendingAttendanceCount === 1
+                ? "it counts"
+                : "they count"}{" "}
+              toward earnings.
+            </span>
+            <Badge variant="outline">Needs attention</Badge>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>

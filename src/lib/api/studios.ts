@@ -1,5 +1,18 @@
-export type CompensationType = "hourly" | "per_class";
+export type CompensationType = "hourly" | "per_class" | "tiered";
 export type StudioStatus = "active" | "inactive";
+
+export type RateTier = {
+  min_attendance: number;
+  /** Null means "and up" — an open-ended top bracket. */
+  max_attendance: number | null;
+  rate: number;
+};
+
+export type RateTierInput = {
+  minAttendance: number;
+  maxAttendance?: number;
+  rate: number;
+};
 
 export type Studio = {
   id: string;
@@ -13,6 +26,8 @@ export type Studio = {
   notes: string | null;
   compensation_type: CompensationType;
   compensation_value: number;
+  /** Only present (and meaningful) when compensation_type is "tiered". */
+  rate_tiers?: RateTier[];
   status: StudioStatus;
   match_keywords: string[];
   metadata: Record<string, unknown>;
@@ -29,7 +44,8 @@ export type StudioInput = {
   address?: string;
   notes?: string;
   compensationType: CompensationType;
-  compensationValue: number;
+  compensationValue?: number;
+  rateTiers?: RateTierInput[];
   status?: StudioStatus;
   matchKeywords?: string[];
 };

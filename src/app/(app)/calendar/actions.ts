@@ -53,6 +53,7 @@ function parseEventInput(formData: FormData): EventInput {
   const endDate = value("endDate");
   const endTime = value("endTime");
   const rawRate = value("rateOverride");
+  const rawAttendance = value("attendanceCount");
   const rawStudioId = value("studioId");
   const studioId = rawStudioId && rawStudioId !== "none" ? rawStudioId : undefined;
 
@@ -69,6 +70,7 @@ function parseEventInput(formData: FormData): EventInput {
     status: studioId ? "assigned" : "unassigned",
     // Empty input clears the override and falls back to the studio's rate.
     rateOverride: rawRate ? Number(rawRate) : null,
+    attendanceCount: rawAttendance ? Number(rawAttendance) : null,
   };
 }
 
