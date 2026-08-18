@@ -3,10 +3,7 @@ import { apiFetch } from "@/lib/api/server-client";
 import type { Event } from "@/lib/api/events";
 import type { Studio } from "@/lib/api/studios";
 import { Button } from "@/components/ui/button";
-import { CsvImportDialog } from "./csv-import-dialog";
-import { IcsUploadDialog } from "./ics-upload-dialog";
 import { RematchButton } from "./rematch-button";
-import { ImportHistoryDialog } from "./import-history-dialog";
 import { EventFormDialog } from "./event-form-dialog";
 import { CalendarView } from "./calendar-view";
 
@@ -31,17 +28,15 @@ export default async function CalendarPage() {
         <div>
           <h1 className="text-2xl font-semibold">Calendar</h1>
           <p className="text-muted-foreground mt-1">
-            Your classes. Connect a calendar in{" "}
+            Your classes. Connect a calendar, upload a file, or bring in
+            history from{" "}
             <Link href="/settings" className="text-accent hover:underline">
               Settings
-            </Link>{" "}
-            to have them appear here automatically.
+            </Link>
+            .
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <ImportHistoryDialog />
-          <IcsUploadDialog studios={studioOptions} />
-          <CsvImportDialog studios={studioOptions} />
           <EventFormDialog
             studios={studioOptions}
             trigger={<Button>Add event</Button>}

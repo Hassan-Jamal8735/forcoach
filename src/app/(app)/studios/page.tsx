@@ -12,6 +12,24 @@ import { CoachMark } from "@/components/onboarding/coach-mark";
 import { SuggestedStudios } from "./suggested-studios";
 
 function formatCompensation(studio: Studio, currencyCode: CurrencyCode) {
+  if (studio.compensation_type === "tiered") {
+    const tiers = studio.rate_tiers ?? [];
+    if (tiers.length === 0) return "By attendance — no brackets set";
+    const sorted = [...tiers].sort(
+      (a, b) => a.min_attendance - b.min_attendance,
+    );
+    return sorted
+      .map((t) => {
+        const range =
+          t.max_attendance == null
+            ? `${t.min_attendance}+`
+            : t.min_attendance === t.max_attendance
+              ? `${t.min_attendance}`
+              : `${t.min_attendance}-${t.max_attendance}`;
+        return `${range}: ${formatCurrency(t.rate, currencyCode)}`;
+      })
+      .join(" · ");
+  }
   const amount = formatCurrency(studio.compensation_value, currencyCode);
   return studio.compensation_type === "hourly"
     ? `${amount} / hour`
@@ -87,7 +105,11 @@ export default async function StudiosPage() {
                 </div>
                 <div className="flex flex-col items-end gap-1">
                   <Badge variant="secondary">
-                    {studio.compensation_type === "hourly" ? "Hourly" : "Per class"}
+                    {studio.compensation_type === "hourly"
+                      ? "Hourly"
+                      : studio.compensation_type === "tiered"
+                        ? "By attendance"
+                        : "Per class"}
                   </Badge>
                   {studio.status === "inactive" && (
                     <Badge variant="outline">Inactive</Badge>

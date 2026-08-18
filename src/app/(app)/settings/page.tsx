@@ -6,6 +6,9 @@ import type { GoogleCalendarStatus } from "@/lib/api/google-calendar";
 import type { IcsFeed } from "@/lib/api/ics-feeds";
 import { GoogleCalendarCard } from "@/app/(app)/calendar/google-calendar-card";
 import { IcsFeedsCard } from "@/app/(app)/calendar/ics-feeds-card";
+import { IcsUploadDialog } from "@/app/(app)/calendar/ics-upload-dialog";
+import { CsvImportDialog } from "@/app/(app)/calendar/csv-import-dialog";
+import { ImportHistoryDialog } from "@/app/(app)/calendar/import-history-dialog";
 import { ProfileForm } from "./profile-form";
 import { ChangePasswordForm } from "./change-password-form";
 
@@ -71,6 +74,23 @@ export default async function SettingsPage() {
           <GoogleCalendarCard status={googleStatus} studios={studioOptions} />
           <IcsFeedsCard feeds={icsFeeds} studios={studioOptions} />
         </div>
+      </div>
+      <div className="space-y-2">
+        <div>
+          <h2 className="text-base font-medium">Bring in past classes</h2>
+          <p className="text-sm text-muted-foreground">
+            A live connection above only syncs going forward. Use these for
+            history — a one-off calendar export, a spreadsheet, or to check
+            what a past sync actually did.
+          </p>
+        </div>
+        <Card>
+          <CardContent className="flex flex-wrap items-center gap-2 pt-6">
+            <IcsUploadDialog studios={studioOptions} />
+            <CsvImportDialog studios={studioOptions} />
+            <ImportHistoryDialog />
+          </CardContent>
+        </Card>
       </div>
       <Card>
         <CardHeader>

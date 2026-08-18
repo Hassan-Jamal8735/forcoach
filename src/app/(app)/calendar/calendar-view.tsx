@@ -32,10 +32,10 @@ const PAGE_SIZE = 20;
 type ViewMode = "list" | "month" | "week" | "day";
 
 const VIEWS: { value: ViewMode; label: string }[] = [
-  { value: "list", label: "List" },
-  { value: "month", label: "Month" },
-  { value: "week", label: "Week" },
   { value: "day", label: "Day" },
+  { value: "week", label: "Week" },
+  { value: "month", label: "Month" },
+  { value: "list", label: "List" },
 ];
 
 export function CalendarView({
@@ -45,7 +45,7 @@ export function CalendarView({
   events: Event[];
   studios: Studio[];
 }) {
-  const [view, setView] = useState<ViewMode>("list");
+  const [view, setView] = useState<ViewMode>("day");
   const [anchor, setAnchor] = useState(() => new Date());
   const [search, setSearch] = useState("");
   const [studioFilter, setStudioFilter] = useState("all");
