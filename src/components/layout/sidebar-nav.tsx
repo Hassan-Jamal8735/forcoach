@@ -3,12 +3,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { BookOpen, LogOut } from "lucide-react";
+import { BookOpen, LogOut, MessageCircle, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS } from "@/lib/nav-items";
 import { logout } from "@/app/(auth)/actions";
 
-export function SidebarNav() {
+export function SidebarNav({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname();
 
   const linkClass = (isActive: boolean) =>
@@ -47,6 +47,16 @@ export function SidebarNav() {
         })}
       </nav>
       <div className="space-y-1 border-t border-sidebar-foreground/10 px-3 py-3">
+        {isAdmin && (
+          <Link href="/admin" className={linkClass(pathname.startsWith("/admin"))}>
+            <ShieldCheck className="size-4" />
+            Admin
+          </Link>
+        )}
+        <Link href="/support" className={linkClass(pathname.startsWith("/support"))}>
+          <MessageCircle className="size-4" />
+          Support
+        </Link>
         <Link href="/guide" className={linkClass(pathname.startsWith("/guide"))}>
           <BookOpen className="size-4" />
           Help Centre

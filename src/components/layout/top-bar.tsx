@@ -22,7 +22,13 @@ function initialsFrom(nameOrEmail: string) {
   return trimmed.slice(0, 2).toUpperCase();
 }
 
-export function TopBar({ displayName }: { displayName: string }) {
+export function TopBar({
+  displayName,
+  isAdmin = false,
+}: {
+  displayName: string;
+  isAdmin?: boolean;
+}) {
   const router = useRouter();
 
   return (
@@ -44,9 +50,17 @@ export function TopBar({ displayName }: { displayName: string }) {
           <DropdownMenuItem onClick={() => router.push("/settings")}>
             Profile
           </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push("/support")}>
+            Support
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => router.push("/guide")}>
             Help Centre
           </DropdownMenuItem>
+          {isAdmin && (
+            <DropdownMenuItem onClick={() => router.push("/admin")}>
+              Admin
+            </DropdownMenuItem>
+          )}
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onClick={() => logout()}>
             Log out
