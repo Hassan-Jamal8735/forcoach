@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { ADMIN_EMAIL } from "@/lib/admin";
 
 // Auth flows: logged-in users get bounced to /dashboard from these.
 // "/reset-password" is deliberately NOT here — a password recovery link
@@ -66,9 +67,35 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  const isAdmin = user?.email === ADMIN_EMAIL;
+
   if (user && (isRoot || isAuthPath)) {
     const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
+    url.pathname = isAdmin ? "/admin" : "/dashboard";
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
+
+  // The admin account only ever sees the admin panel and Support (to reply
+  // there too) — never the regular coach app, so there's no ambiguity about
+  // which "mode" is showing.
+  // "/settings" stays reachable for the admin account too — it's where
+  // Aya manages her own password/profile, not a coaching operation.
+  const COACH_ONLY_PATHS = [
+    "/dashboard",
+    "/calendar",
+    "/studios",
+    "/earnings",
+    "/invoices",
+    "/guide",
+    "/support",
+  ];
+  if (
+    isAdmin &&
+    COACH_ONLY_PATHS.some((path) => pathname.startsWith(path))
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/admin";
     url.search = "";
     return NextResponse.redirect(url);
   }

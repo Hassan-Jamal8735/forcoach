@@ -29,7 +29,7 @@ export default async function AppLayout({
           {children}
         </main>
       </div>
-      <MobileNav />
+      <MobileNav isAdmin={isAdmin} />
     </div>
   );
 }

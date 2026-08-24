@@ -6,6 +6,8 @@ import {
   FileText,
   Settings,
   Coins,
+  MessageCircle,
+  Users,
 } from "lucide-react";
 
 export type NavItem = {
@@ -23,4 +25,12 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Earnings", href: "/earnings", icon: Coins },
   { label: "Invoices", href: "/invoices", icon: FileText },
   { label: "Settings", href: "/settings", icon: Settings },
+];
+
+// The admin account (contact@forcoach.io) sees this instead of NAV_ITEMS —
+// a separate experience, not the coach app with an extra link bolted on.
+export const ADMIN_NAV_ITEMS: NavItem[] = [
+  { label: "Overview", href: "/admin", icon: LayoutDashboard },
+  { label: "Coaches", href: "/admin/users", icon: Users },
+  { label: "Support inbox", href: "/admin/support", icon: MessageCircle },
 ];

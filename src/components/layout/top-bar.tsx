@@ -50,16 +50,15 @@ export function TopBar({
           <DropdownMenuItem onClick={() => router.push("/settings")}>
             Profile
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push("/support")}>
-            Support
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push("/guide")}>
-            Help Centre
-          </DropdownMenuItem>
-          {isAdmin && (
-            <DropdownMenuItem onClick={() => router.push("/admin")}>
-              Admin
-            </DropdownMenuItem>
+          {!isAdmin && (
+            <>
+              <DropdownMenuItem onClick={() => router.push("/support")}>
+                Support
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/guide")}>
+                Help Centre
+              </DropdownMenuItem>
+            </>
           )}
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onClick={() => logout()}>

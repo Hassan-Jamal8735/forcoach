@@ -3,15 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { NAV_ITEMS } from "@/lib/nav-items";
+import { NAV_ITEMS, ADMIN_NAV_ITEMS } from "@/lib/nav-items";
 
-export function MobileNav() {
+export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname();
+  const items = isAdmin ? ADMIN_NAV_ITEMS : NAV_ITEMS;
 
   return (
     <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 flex items-center justify-around border-t border-border bg-sidebar text-sidebar-foreground py-2">
-      {NAV_ITEMS.map((item) => {
-        const isActive = pathname.startsWith(item.href);
+      {items.map((item) => {
+        const isActive =
+          item.href === "/admin"
+            ? pathname === "/admin"
+            : pathname.startsWith(item.href);
         const Icon = item.icon;
         return (
           <Link
