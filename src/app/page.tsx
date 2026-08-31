@@ -13,6 +13,8 @@ import {
   Wind,
   HelpCircle,
   MessageCircle,
+  CreditCard,
+  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -104,6 +106,13 @@ const STEPS = [
   },
 ];
 
+const PRICING_INCLUDED = [
+  "Unlimited studios and classes",
+  "Automatic calendar sync (Google Calendar or CSV)",
+  "Earnings tracking, per studio and overall",
+  "Unlimited branded invoices",
+];
+
 const AUDIENCE = [
   {
     tag: "Pilates",
@@ -157,7 +166,7 @@ const FAQ = [
     icon: HelpCircle,
     question: "What does it cost?",
     answer:
-      "FORCOACH is currently in early access. Reach out after signing up and we'll walk you through it.",
+      "€9/month during early access, one plan with everything included. Payment is handled securely through Stripe, and you can cancel anytime.",
   },
 ];
 
@@ -190,14 +199,14 @@ export default function Home() {
                   className="group"
                   render={
                     <Link href="/register">
-                      Start free, no card needed
+                      Get started — €9/month
                       <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
                     </Link>
                   }
                 />
                 <p className="text-xs text-muted-foreground">
-                  Free during early access, with advance notice before any
-                  pricing changes. No surprise charges.
+                  Early access pricing. Secure payment via Stripe, cancel
+                  anytime.
                 </p>
               </div>
             </Reveal>
@@ -395,6 +404,64 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Pricing */}
+        <section id="pricing" className="border-y border-border bg-secondary/40 px-4 py-20 sm:px-6">
+          <Reveal className="mx-auto max-w-2xl text-center">
+            <h2 className="font-heading text-3xl font-semibold">
+              Simple, honest pricing
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              One plan. Everything included. No hidden fees.
+            </p>
+          </Reveal>
+          <Reveal delay={100} className="mx-auto mt-12 max-w-md">
+            <Card className="border-accent/30 shadow-lg">
+              <CardHeader className="text-center">
+                <Badge variant="secondary" className="mx-auto mb-2 w-fit">
+                  Early access price
+                </Badge>
+                <div className="flex items-baseline justify-center gap-1">
+                  <span className="font-heading text-5xl font-semibold">
+                    €9
+                  </span>
+                  <span className="text-muted-foreground">/month</span>
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Locked in for early users. The price increases as FORCOACH
+                  grows, but never for accounts already subscribed at this
+                  rate.
+                </p>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  {PRICING_INCLUDED.map((item) => (
+                    <li key={item} className="flex items-start gap-2.5 text-sm">
+                      <Check className="mt-0.5 size-4 shrink-0 text-accent" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+                <Button
+                  size="lg"
+                  nativeButton={false}
+                  className="group mt-6 w-full"
+                  render={
+                    <Link href="/register">
+                      Get started
+                      <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
+                    </Link>
+                  }
+                />
+                <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                  <ShieldCheck className="size-3.5 shrink-0" />
+                  Payments processed securely by Stripe
+                  <CreditCard className="size-3.5 shrink-0" />
+                </div>
+              </CardContent>
+            </Card>
+          </Reveal>
+        </section>
+
         {/* FAQ */}
         <section className="border-y border-border bg-secondary/40 px-4 py-20 sm:px-6">
           <Reveal className="mx-auto max-w-2xl">
@@ -445,7 +512,7 @@ export default function Home() {
                 className="group"
                 render={
                   <Link href="/register">
-                    Start free, no card needed
+                    Get started — €9/month
                     <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
                   </Link>
                 }

@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 const LINKS = [
   { href: "/#features", label: "Features" },
   { href: "/#how-it-works", label: "How it works" },
+  { href: "/#pricing", label: "Pricing" },
 ];
 
 const PAGE_LINKS = [

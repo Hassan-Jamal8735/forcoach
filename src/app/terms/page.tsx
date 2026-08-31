@@ -117,10 +117,11 @@ export default function TermsOfServicePage() {
             <section>
               <h2>6. Pricing during early access</h2>
               <p>
-                FORCOACH is currently free to use during early access. If we
-                introduce paid pricing in the future, we&apos;ll give you
-                advance notice before any charges apply, you won&apos;t be
-                billed without warning.
+                FORCOACH is a paid subscription, currently offered at an
+                early-access price. Payment is processed securely through
+                Stripe. If the price changes in the future, existing
+                subscribers keep their current rate, we won&apos;t change
+                what you&apos;re billed without advance notice.
               </p>
             </section>
 
