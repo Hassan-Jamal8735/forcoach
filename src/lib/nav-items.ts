@@ -8,6 +8,7 @@ import {
   Coins,
   MessageCircle,
   Users,
+  Tag,
 } from "lucide-react";
 
 export type NavItem = {
@@ -33,4 +34,5 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   { label: "Overview", href: "/admin", icon: LayoutDashboard },
   { label: "Coaches", href: "/admin/users", icon: Users },
   { label: "Support inbox", href: "/admin/support", icon: MessageCircle },
+  { label: "Promo codes", href: "/admin/billing", icon: Tag },
 ];

@@ -91,6 +91,14 @@ export function SubscriptionCard({ billing }: { billing: BillingStatus }) {
           {dateFmt.format(new Date(billing.currentPeriodEnd))}.
         </p>
       )}
+      {billing.promoCode && (
+        <p className="text-sm text-muted-foreground">
+          Promo code <span className="font-medium">{billing.promoCode}</span>
+          {billing.discountPercentOff != null &&
+            ` applied — ${billing.discountPercentOff}% off`}
+          .
+        </p>
+      )}
 
       <div className="flex gap-2">
         {canSubscribe && (

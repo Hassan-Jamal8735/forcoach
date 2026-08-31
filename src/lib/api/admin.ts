@@ -21,6 +21,23 @@ export type AdminUser = {
   invoiceCount: number;
   unreadSupportCount: number;
   subscriptionStatus: string;
+  promoCode: string | null;
+  discountPercentOff: number | null;
+  discountDuration: string | null;
+};
+
+export type PromoCode = {
+  id: string;
+  code: string;
+  active: boolean;
+  percentOff: number | null;
+  amountOff: number | null;
+  currency: string | null;
+  duration: "once" | "repeating" | "forever" | null;
+  durationInMonths: number | null;
+  timesRedeemed: number;
+  maxRedemptions: number | null;
+  createdAt: string;
 };
 
 export type SupportThreadSummary = {

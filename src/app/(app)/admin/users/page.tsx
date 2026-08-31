@@ -73,6 +73,15 @@ export default async function AdminUsersPage() {
                     <Badge variant={SUBSCRIPTION_VARIANT[u.subscriptionStatus] ?? "outline"}>
                       {u.subscriptionStatus}
                     </Badge>
+                    {u.promoCode && (
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        {u.promoCode}
+                        {u.discountPercentOff != null &&
+                          ` — ${u.discountPercentOff}% off${
+                            u.discountDuration === "forever" ? " forever" : ""
+                          }`}
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-3">{u.studioCount}</td>
                   <td className="px-4 py-3">{u.classCount}</td>

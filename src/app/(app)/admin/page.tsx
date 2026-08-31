@@ -157,6 +157,9 @@ export default async function AdminOverviewPage() {
         <Link href="/admin/support" className="text-accent hover:underline">
           Support inbox &rarr;
         </Link>
+        <Link href="/admin/billing" className="text-accent hover:underline">
+          Promo codes &rarr;
+        </Link>
       </div>
     </div>
   );
