@@ -107,10 +107,16 @@ const STEPS = [
 ];
 
 const PRICING_INCLUDED = [
-  "Unlimited studios and classes",
-  "Automatic calendar sync (Google Calendar or CSV)",
-  "Earnings tracking, per studio and overall",
-  "Unlimited branded invoices",
+  { icon: Building2, text: "Unlimited studios and classes" },
+  { icon: CalendarDays, text: "Automatic calendar sync (Google Calendar or CSV)" },
+  { icon: TrendingUp, text: "Earnings tracking, per studio and overall" },
+  { icon: FileText, text: "Unlimited branded invoices" },
+];
+
+const PRICING_TRUST = [
+  { icon: ShieldCheck, text: "Payments secured by Stripe" },
+  { icon: CreditCard, text: "Cancel anytime, no lock-in" },
+  { icon: Check, text: "No setup fees, no hidden costs" },
 ];
 
 const AUDIENCE = [
@@ -405,61 +411,108 @@ export default function Home() {
         </section>
 
         {/* Pricing */}
-        <section id="pricing" className="border-y border-border bg-secondary/40 px-4 py-20 sm:px-6">
-          <Reveal className="mx-auto max-w-2xl text-center">
-            <h2 className="font-heading text-3xl font-semibold">
-              Simple, honest pricing
+        <section
+          id="pricing"
+          className="relative overflow-hidden border-y border-border bg-secondary/40 px-4 py-20 sm:px-6"
+        >
+          <div
+            aria-hidden
+            className="pointer-events-none absolute top-1/2 left-1/2 h-[520px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-60"
+            style={{
+              background:
+                "radial-gradient(closest-side, color-mix(in oklch, var(--accent) 12%, transparent) 0%, transparent 100%)",
+            }}
+          />
+          <Reveal className="relative mx-auto max-w-2xl text-center">
+            <Badge variant="secondary" className="mx-auto mb-4 w-fit">
+              Pricing
+            </Badge>
+            <h2 className="font-heading text-3xl font-semibold sm:text-4xl">
+              One plan. Everything included.
             </h2>
             <p className="mt-3 text-muted-foreground">
-              One plan. Everything included. No hidden fees.
+              No tiers to compare, no features locked behind a higher plan.
+              Just what a coach across multiple studios actually needs.
             </p>
           </Reveal>
-          <Reveal delay={100} className="mx-auto mt-12 max-w-md">
-            <Card className="border-accent/30 shadow-lg">
-              <CardHeader className="text-center">
-                <Badge variant="secondary" className="mx-auto mb-2 w-fit">
-                  Early access price
-                </Badge>
-                <div className="flex items-baseline justify-center gap-1">
-                  <span className="font-heading text-5xl font-semibold">
-                    €9
-                  </span>
-                  <span className="text-muted-foreground">/month</span>
-                </div>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Locked in for early users. The price increases as FORCOACH
-                  grows, but never for accounts already subscribed at this
-                  rate.
-                </p>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  {PRICING_INCLUDED.map((item) => (
-                    <li key={item} className="flex items-start gap-2.5 text-sm">
-                      <Check className="mt-0.5 size-4 shrink-0 text-accent" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                <Button
-                  size="lg"
-                  nativeButton={false}
-                  className="group mt-6 w-full"
-                  render={
-                    <Link href="/register">
-                      Get started
-                      <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
-                    </Link>
-                  }
+
+          <div className="relative mx-auto mt-14 grid max-w-5xl items-center gap-10 lg:grid-cols-[1fr_1.1fr]">
+            <Reveal className="order-2 lg:order-1">
+              <p className="text-sm font-medium text-accent">
+                Less than the cost of covering one class
+              </p>
+              <h3 className="mt-2 font-heading text-2xl font-semibold">
+                Built to pay for itself with your first invoice
+              </h3>
+              <p className="mt-3 text-muted-foreground">
+                FORCOACH replaces spreadsheets, scattered calendars, and
+                manual invoicing across every studio you teach at, for one
+                flat monthly price.
+              </p>
+              <div className="mt-8 space-y-4">
+                {PRICING_TRUST.map((item) => (
+                  <div key={item.text} className="flex items-center gap-3 text-sm">
+                    <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent">
+                      <item.icon className="size-4" />
+                    </div>
+                    <span className="text-muted-foreground">{item.text}</span>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+
+            <Reveal delay={100} className="order-1 lg:order-2">
+              <Card className="relative overflow-hidden border-accent/30 shadow-xl">
+                <div
+                  aria-hidden
+                  className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-accent/40 via-accent to-accent/40"
                 />
-                <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                  <ShieldCheck className="size-3.5 shrink-0" />
-                  Payments processed securely by Stripe
-                  <CreditCard className="size-3.5 shrink-0" />
-                </div>
-              </CardContent>
-            </Card>
-          </Reveal>
+                <CardHeader className="pt-8 text-center">
+                  <Badge variant="secondary" className="mx-auto mb-3 w-fit">
+                    Early access price
+                  </Badge>
+                  <div className="flex items-baseline justify-center gap-1.5">
+                    <span className="font-heading text-6xl font-semibold tracking-tight">
+                      €9
+                    </span>
+                    <span className="text-lg text-muted-foreground">
+                      /month
+                    </span>
+                  </div>
+                  <p className="mx-auto mt-3 max-w-xs text-sm text-muted-foreground">
+                    Locked in for early users, even as the price rises for
+                    new sign-ups later.
+                  </p>
+                </CardHeader>
+                <CardContent className="pb-8">
+                  <ul className="space-y-3.5 border-t border-border pt-6">
+                    {PRICING_INCLUDED.map((item) => (
+                      <li key={item.text} className="flex items-center gap-3 text-sm">
+                        <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent">
+                          <item.icon className="size-3.5" />
+                        </div>
+                        {item.text}
+                      </li>
+                    ))}
+                  </ul>
+                  <Button
+                    size="lg"
+                    nativeButton={false}
+                    className="group mt-7 w-full"
+                    render={
+                      <Link href="/register">
+                        Get started
+                        <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
+                      </Link>
+                    }
+                  />
+                  <p className="mt-3 text-center text-xs text-muted-foreground">
+                    Secure checkout via Stripe. Cancel anytime.
+                  </p>
+                </CardContent>
+              </Card>
+            </Reveal>
+          </div>
         </section>
 
         {/* FAQ */}
