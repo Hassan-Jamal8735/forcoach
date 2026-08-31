@@ -6,6 +6,7 @@ export type AdminOverview = {
   totalClasses: number;
   totalInvoices: number;
   unreadSupportCount: number;
+  activeSubscriptions: number;
   signupTrend: { date: string; count: number }[];
 };
 
@@ -19,6 +20,7 @@ export type AdminUser = {
   classCount: number;
   invoiceCount: number;
   unreadSupportCount: number;
+  subscriptionStatus: string;
 };
 
 export type SupportThreadSummary = {

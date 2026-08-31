@@ -9,6 +9,19 @@ const dateFmt = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
 });
 
+const SUBSCRIPTION_VARIANT: Record<
+  string,
+  "secondary" | "outline" | "destructive"
+> = {
+  active: "secondary",
+  trialing: "secondary",
+  past_due: "destructive",
+  unpaid: "destructive",
+  canceled: "outline",
+  incomplete: "outline",
+  none: "outline",
+};
+
 export default async function AdminUsersPage() {
   const users = await apiFetch<AdminUser[]>("/admin/users");
   const sorted = [...users].sort((a, b) =>
@@ -32,6 +45,7 @@ export default async function AdminUsersPage() {
                 <th className="px-4 py-2 font-medium">Coach</th>
                 <th className="px-4 py-2 font-medium">Joined</th>
                 <th className="px-4 py-2 font-medium">Last seen</th>
+                <th className="px-4 py-2 font-medium">Subscription</th>
                 <th className="px-4 py-2 font-medium">Studios</th>
                 <th className="px-4 py-2 font-medium">Classes</th>
                 <th className="px-4 py-2 font-medium">Invoices</th>
@@ -54,6 +68,11 @@ export default async function AdminUsersPage() {
                     {u.lastSignInAt
                       ? dateFmt.format(new Date(u.lastSignInAt))
                       : "Never"}
+                  </td>
+                  <td className="px-4 py-3">
+                    <Badge variant={SUBSCRIPTION_VARIANT[u.subscriptionStatus] ?? "outline"}>
+                      {u.subscriptionStatus}
+                    </Badge>
                   </td>
                   <td className="px-4 py-3">{u.studioCount}</td>
                   <td className="px-4 py-3">{u.classCount}</td>

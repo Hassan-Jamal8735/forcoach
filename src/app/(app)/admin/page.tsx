@@ -13,6 +13,7 @@ export default async function AdminOverviewPage() {
 
   const STATS = [
     { label: "Total coaches", value: overview.totalUsers },
+    { label: "Active subscriptions", value: overview.activeSubscriptions },
     { label: "New this week", value: overview.newUsersThisWeek },
     { label: "New this month", value: overview.newUsersThisMonth },
     {
@@ -52,7 +53,7 @@ export default async function AdminOverviewPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {STATS.map((stat) => {
           const content = (
             <CardContent className="pt-6">
