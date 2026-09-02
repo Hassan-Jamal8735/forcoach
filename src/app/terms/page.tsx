@@ -118,10 +118,12 @@ export default function TermsOfServicePage() {
               <h2>6. Pricing during early access</h2>
               <p>
                 FORCOACH is a paid subscription, currently offered at an
-                early-access price. Payment is processed securely through
-                Stripe. If the price changes in the future, existing
-                subscribers keep their current rate, we won&apos;t change
-                what you&apos;re billed without advance notice.
+                early-access price with a 15-day free trial. You won&apos;t
+                be charged until the trial ends, and you can cancel anytime
+                before then. Payment is processed securely through Stripe.
+                If the price changes in the future, existing subscribers
+                keep their current rate, we won&apos;t change what
+                you&apos;re billed without advance notice.
               </p>
             </section>
 

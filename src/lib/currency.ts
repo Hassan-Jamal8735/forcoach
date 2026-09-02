@@ -1,4 +1,4 @@
-export type CurrencyCode = "EUR" | "USD";
+export type CurrencyCode = "EUR" | "USD" | "GBP";
 
 export const SUPPORTED_CURRENCIES: {
   code: CurrencyCode;
@@ -7,12 +7,13 @@ export const SUPPORTED_CURRENCIES: {
 }[] = [
   { code: "EUR", label: "EUR (€)", symbol: "€" },
   { code: "USD", label: "USD ($)", symbol: "$" },
+  { code: "GBP", label: "GBP (£)", symbol: "£" },
 ];
 
 export const DEFAULT_CURRENCY: CurrencyCode = "EUR";
 
 export function toCurrencyCode(value: unknown): CurrencyCode {
-  return value === "USD" ? "USD" : DEFAULT_CURRENCY;
+  return value === "USD" || value === "GBP" ? value : DEFAULT_CURRENCY;
 }
 
 export function currencySymbol(code: CurrencyCode): string {

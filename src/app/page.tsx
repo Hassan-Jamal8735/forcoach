@@ -36,6 +36,7 @@ import { DashboardMock } from "@/components/marketing/dashboard-mock";
 import { EarningsMock } from "@/components/marketing/earnings-mock";
 import { StudiosMock } from "@/components/marketing/studios-mock";
 import { Reveal } from "@/components/marketing/reveal";
+import { PricingCard } from "@/components/marketing/pricing-card";
 import { HeroBackground } from "@/components/marketing/hero-background";
 
 const FEATURES = [
@@ -106,13 +107,6 @@ const STEPS = [
   },
 ];
 
-const PRICING_INCLUDED = [
-  { icon: Building2, text: "Unlimited studios and classes" },
-  { icon: CalendarDays, text: "Automatic calendar sync (Google Calendar or CSV)" },
-  { icon: TrendingUp, text: "Earnings tracking, per studio and overall" },
-  { icon: FileText, text: "Unlimited branded invoices" },
-];
-
 const PRICING_TRUST = [
   { icon: ShieldCheck, text: "Payments secured by Stripe" },
   { icon: CreditCard, text: "Cancel anytime, no lock-in" },
@@ -172,7 +166,7 @@ const FAQ = [
     icon: HelpCircle,
     question: "What does it cost?",
     answer:
-      "€9/month during early access, one plan with everything included. Payment is handled securely through Stripe, and you can cancel anytime.",
+      "€9/month (or €108/year) during early access, down from the regular €19.99/month, with everything included. Every plan starts with a 15-day free trial, and payment is handled securely through Stripe.",
   },
 ];
 
@@ -205,13 +199,13 @@ export default function Home() {
                   className="group"
                   render={
                     <Link href="/register">
-                      Get started — €9/month
+                      Get started
                       <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
                     </Link>
                   }
                 />
                 <p className="text-xs text-muted-foreground">
-                  Early access pricing. Secure payment via Stripe, cancel
+                  15-day free trial. Secure payment via Stripe, cancel
                   anytime.
                 </p>
               </div>
@@ -462,55 +456,7 @@ export default function Home() {
             </Reveal>
 
             <Reveal delay={100} className="order-1 lg:order-2">
-              <Card className="relative overflow-hidden border-accent/30 shadow-xl">
-                <div
-                  aria-hidden
-                  className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-accent/40 via-accent to-accent/40"
-                />
-                <CardHeader className="pt-8 text-center">
-                  <Badge variant="secondary" className="mx-auto mb-3 w-fit">
-                    Early access price
-                  </Badge>
-                  <div className="flex items-baseline justify-center gap-1.5">
-                    <span className="font-heading text-6xl font-semibold tracking-tight">
-                      €9
-                    </span>
-                    <span className="text-lg text-muted-foreground">
-                      /month
-                    </span>
-                  </div>
-                  <p className="mx-auto mt-3 max-w-xs text-sm text-muted-foreground">
-                    Locked in for early users, even as the price rises for
-                    new sign-ups later.
-                  </p>
-                </CardHeader>
-                <CardContent className="pb-8">
-                  <ul className="space-y-3.5 border-t border-border pt-6">
-                    {PRICING_INCLUDED.map((item) => (
-                      <li key={item.text} className="flex items-center gap-3 text-sm">
-                        <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent">
-                          <item.icon className="size-3.5" />
-                        </div>
-                        {item.text}
-                      </li>
-                    ))}
-                  </ul>
-                  <Button
-                    size="lg"
-                    nativeButton={false}
-                    className="group mt-7 w-full"
-                    render={
-                      <Link href="/register">
-                        Get started
-                        <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
-                      </Link>
-                    }
-                  />
-                  <p className="mt-3 text-center text-xs text-muted-foreground">
-                    Secure checkout via Stripe. Cancel anytime.
-                  </p>
-                </CardContent>
-              </Card>
+              <PricingCard />
             </Reveal>
           </div>
         </section>
@@ -565,7 +511,7 @@ export default function Home() {
                 className="group"
                 render={
                   <Link href="/register">
-                    Get started — €9/month
+                    Start 15-day free trial
                     <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
                   </Link>
                 }
