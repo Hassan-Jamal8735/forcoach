@@ -16,6 +16,7 @@ export type BillingStatus = {
   promoCode: string | null;
   discountPercentOff: number | null;
   plan: Plan | null;
+  yearlyDiscountPercentOff: number | null;
   enforced: boolean;
   hasAccess: boolean;
 };

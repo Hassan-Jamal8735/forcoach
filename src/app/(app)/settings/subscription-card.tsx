@@ -25,11 +25,32 @@ const PLAN_LABEL: Record<Plan, string> = {
 };
 
 // Display copy only — the actual charge always comes from whichever Stripe
-// price the backend is configured with. Keep these in sync if that changes.
-const PLAN_OPTIONS: { value: Plan; label: string; price: string }[] = [
-  { value: "monthly", label: "Monthly", price: "€9/month" },
-  { value: "yearly", label: "Yearly", price: "€108/year" },
-];
+// price (and, for yearly, whichever discount coupon) the backend applies.
+// Keep the base amounts in sync if the underlying Stripe prices change.
+const MONTHLY_BASE_PRICE = 9;
+const YEARLY_BASE_PRICE = 108;
+
+function planOptions(
+  yearlyDiscountPercentOff: number | null,
+): { value: Plan; label: string; price: string; note?: string }[] {
+  const yearlyPrice =
+    yearlyDiscountPercentOff != null
+      ? YEARLY_BASE_PRICE * (1 - yearlyDiscountPercentOff / 100)
+      : YEARLY_BASE_PRICE;
+
+  return [
+    { value: "monthly", label: "Monthly", price: `€${MONTHLY_BASE_PRICE}/month` },
+    {
+      value: "yearly",
+      label: "Yearly",
+      price: `€${yearlyPrice % 1 === 0 ? yearlyPrice : yearlyPrice.toFixed(2)}/year`,
+      note:
+        yearlyDiscountPercentOff != null
+          ? `${yearlyDiscountPercentOff}% off, applied automatically`
+          : undefined,
+    },
+  ];
+}
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {
   month: "long",
@@ -47,6 +68,7 @@ export function SubscriptionCard({ billing }: { billing: BillingStatus }) {
   const canSubscribe = ["none", "incomplete", "canceled", "unpaid"].includes(
     billing.status,
   );
+  const options = planOptions(billing.yearlyDiscountPercentOff);
 
   function handleSubscribe() {
     setError(undefined);
@@ -119,7 +141,7 @@ export function SubscriptionCard({ billing }: { billing: BillingStatus }) {
 
       {canSubscribe && (
         <div className="flex gap-2" role="radiogroup" aria-label="Billing plan">
-          {PLAN_OPTIONS.map((option) => (
+          {options.map((option) => (
             <button
               key={option.value}
               type="button"
@@ -137,6 +159,9 @@ export function SubscriptionCard({ billing }: { billing: BillingStatus }) {
               <div className="text-xs text-muted-foreground">
                 {option.price}
               </div>
+              {option.note && (
+                <div className="text-xs text-accent">{option.note}</div>
+              )}
             </button>
           ))}
         </div>

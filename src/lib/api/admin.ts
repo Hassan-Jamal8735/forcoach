@@ -40,6 +40,10 @@ export type PromoCode = {
   createdAt: string;
 };
 
+export type YearlyDiscount = {
+  percentOff: number | null;
+};
+
 export type SupportThreadSummary = {
   userId: string;
   email: string;

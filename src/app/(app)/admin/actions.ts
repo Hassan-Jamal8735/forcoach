@@ -3,7 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { apiFetch, ApiError } from "@/lib/api/server-client";
 import type { SupportMessage } from "@/lib/api/support";
-import type { PromoCode, SupportThreadSummary } from "@/lib/api/admin";
+import type {
+  PromoCode,
+  SupportThreadSummary,
+  YearlyDiscount,
+} from "@/lib/api/admin";
 
 export async function fetchThreads(): Promise<{
   threads?: SupportThreadSummary[];
@@ -117,4 +121,51 @@ export async function fetchPromoCodes(): Promise<{
         err instanceof ApiError ? err.message : "Failed to load promo codes",
     };
   }
+}
+
+export async function fetchYearlyDiscount(): Promise<{
+  discount?: YearlyDiscount;
+  error?: string;
+}> {
+  try {
+    const discount = await apiFetch<YearlyDiscount>(
+      "/admin/billing/yearly-discount",
+    );
+    return { discount };
+  } catch (err) {
+    return {
+      error:
+        err instanceof ApiError ? err.message : "Failed to load discount",
+    };
+  }
+}
+
+export async function setYearlyDiscount(
+  percentOff: number,
+): Promise<{ error?: string }> {
+  try {
+    await apiFetch("/admin/billing/yearly-discount", {
+      method: "POST",
+      body: JSON.stringify({ percentOff }),
+    });
+  } catch (err) {
+    return {
+      error: err instanceof ApiError ? err.message : "Failed to set discount",
+    };
+  }
+  revalidatePath("/admin/billing");
+  return {};
+}
+
+export async function clearYearlyDiscount(): Promise<{ error?: string }> {
+  try {
+    await apiFetch("/admin/billing/yearly-discount", { method: "DELETE" });
+  } catch (err) {
+    return {
+      error:
+        err instanceof ApiError ? err.message : "Failed to remove discount",
+    };
+  }
+  revalidatePath("/admin/billing");
+  return {};
 }
