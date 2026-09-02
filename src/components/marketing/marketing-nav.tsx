@@ -17,6 +17,7 @@ const LINKS = [
 ];
 
 const PAGE_LINKS = [
+  { href: "/blog", label: "Blog" },
   { href: "/privacy", label: "Privacy" },
   { href: "/terms", label: "Terms" },
 ];

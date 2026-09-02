@@ -18,6 +18,7 @@ const ALWAYS_ACCESSIBLE_PATHS = [
   "/terms",
   "/auth/callback",
   "/reset-password",
+  "/blog",
 ];
 
 export async function updateSession(request: NextRequest) {

@@ -12,6 +12,7 @@ const ACCOUNT_LINKS = [
 ];
 
 const LEGAL_LINKS = [
+  { href: "/blog", label: "Blog" },
   { href: "/privacy", label: "Privacy Policy" },
   { href: "/terms", label: "Terms of Service" },
 ];
