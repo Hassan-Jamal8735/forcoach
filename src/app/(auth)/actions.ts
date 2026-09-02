@@ -146,6 +146,7 @@ export async function updateProfile(
   const currency = String(formData.get("currency") ?? "EUR");
   const siret = String(formData.get("siret") ?? "").trim();
   const defaultVatRate = String(formData.get("defaultVatRate") ?? "").trim();
+  const iban = String(formData.get("iban") ?? "").trim();
 
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({
@@ -155,6 +156,7 @@ export async function updateProfile(
       currency,
       siret: siret || null,
       default_vat_rate: defaultVatRate ? Number(defaultVatRate) : null,
+      iban: iban || null,
     },
   });
 

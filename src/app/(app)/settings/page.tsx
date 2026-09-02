@@ -25,6 +25,7 @@ export default async function SettingsPage() {
   const timezone = (user?.user_metadata?.timezone as string | undefined) ?? "UTC";
   const currency = (user?.user_metadata?.currency as string | undefined) ?? "EUR";
   const siret = (user?.user_metadata?.siret as string | undefined) ?? "";
+  const iban = (user?.user_metadata?.iban as string | undefined) ?? "";
   const defaultVatRate =
     user?.user_metadata?.default_vat_rate != null
       ? String(user.user_metadata.default_vat_rate as number)
@@ -66,6 +67,7 @@ export default async function SettingsPage() {
             currency={currency}
             siret={siret}
             defaultVatRate={defaultVatRate}
+            iban={iban}
           />
         </CardContent>
       </Card>
