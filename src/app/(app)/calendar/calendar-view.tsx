@@ -23,9 +23,10 @@ import {
 } from "@/lib/date";
 import type { Event } from "@/lib/api/events";
 import type { Studio } from "@/lib/api/studios";
-import { EventRow, formatEventRange } from "./event-row";
+import { EventRow } from "./event-row";
 import { BulkDeleteButton } from "./bulk-delete-button";
 import { BulkAssignButton } from "./bulk-assign-button";
+import { TimeGrid } from "./time-grid";
 
 const PAGE_SIZE = 20;
 
@@ -319,73 +320,23 @@ export function CalendarView({
           </div>
         ))}
 
-      {view === "day" &&
-        (() => {
-          const dayEvents = eventsByDay.get(dateKey(anchor)) ?? [];
-          return dayEvents.length === 0 ? (
-            emptyState
-          ) : (
-            <Card>
-              <CardContent className="divide-y p-0">
-                {dayEvents.map((event) => (
-                  <EventRow
-                    key={event.id}
-                    event={event}
-                    studioById={studioById}
-                    studioOptions={studioOptions}
-                    showDate={false}
-                  />
-                ))}
-              </CardContent>
-            </Card>
-          );
-        })()}
+      {view === "day" && (
+        <TimeGrid
+          days={[anchor]}
+          eventsByDay={eventsByDay}
+          studioOptions={studioOptions}
+          dayHeaderFormat={(day) =>
+            day.toLocaleDateString("en-US", { weekday: "long", day: "numeric" })
+          }
+        />
+      )}
 
       {view === "week" && (
-        <div className="grid gap-3 lg:grid-cols-7">
-          {Array.from({ length: 7 }, (_, i) => addDays(startOfWeek(anchor), i)).map(
-            (day) => {
-              const dayEvents = eventsByDay.get(dateKey(day)) ?? [];
-              return (
-                <Card key={dateKey(day)} className="min-w-0">
-                  <CardHeader className="p-3 pb-2">
-                    <CardTitle className="text-xs font-medium text-muted-foreground">
-                      {day.toLocaleDateString("en-US", {
-                        weekday: "short",
-                        day: "numeric",
-                      })}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-1.5 p-3 pt-0">
-                    {dayEvents.length === 0 ? (
-                      <p className="text-xs text-muted-foreground">—</p>
-                    ) : (
-                      dayEvents.map((event) => (
-                        <button
-                          key={event.id}
-                          type="button"
-                          onClick={() => {
-                            setAnchor(new Date(event.start_time));
-                            setView("day");
-                          }}
-                          className={cn(
-                            "w-full rounded-md border px-2 py-1.5 text-left text-xs transition-colors hover:bg-muted",
-                            event.status === "excluded" && "opacity-50",
-                          )}
-                        >
-                          <p className="truncate font-medium">{event.title}</p>
-                          <p className="text-muted-foreground">
-                            {formatEventRange(event, false)}
-                          </p>
-                        </button>
-                      ))
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            },
-          )}
-        </div>
+        <TimeGrid
+          days={Array.from({ length: 7 }, (_, i) => addDays(startOfWeek(anchor), i))}
+          eventsByDay={eventsByDay}
+          studioOptions={studioOptions}
+        />
       )}
 
       {view === "month" && (

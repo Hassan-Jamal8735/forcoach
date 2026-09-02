@@ -1,7 +1,6 @@
 import { apiFetch } from "@/lib/api/server-client";
 import type { Event } from "@/lib/api/events";
 import type { Studio } from "@/lib/api/studios";
-import type { ImportActivity } from "@/lib/api/events";
 import type { EarningsSummary, EarningsTimeseries } from "@/lib/api/earnings";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,18 +20,16 @@ export default async function DashboardPage() {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1);
 
-  const [studios, events, summary, timeseries, importActivity] =
-    await Promise.all([
-      apiFetch<Studio[]>("/studios"),
-      apiFetch<Event[]>("/events"),
-      apiFetch<EarningsSummary>(
-        `/earnings/summary?from=${monthStart.toISOString()}&to=${now.toISOString()}`,
-      ),
-      apiFetch<EarningsTimeseries>(
-        `/earnings/timeseries?from=${twelveMonthsAgo.toISOString()}&to=${now.toISOString()}&granularity=month`,
-      ),
-      apiFetch<ImportActivity[]>("/events/import-activity"),
-    ]);
+  const [studios, events, summary, timeseries] = await Promise.all([
+    apiFetch<Studio[]>("/studios"),
+    apiFetch<Event[]>("/events"),
+    apiFetch<EarningsSummary>(
+      `/earnings/summary?from=${monthStart.toISOString()}&to=${now.toISOString()}`,
+    ),
+    apiFetch<EarningsTimeseries>(
+      `/earnings/timeseries?from=${twelveMonthsAgo.toISOString()}&to=${now.toISOString()}&granularity=month`,
+    ),
+  ]);
 
   const currencyCode = await getUserCurrency();
   const money = (v: number) => formatCurrency(v, currencyCode);
@@ -204,45 +201,6 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base font-normal text-muted-foreground">
-            Recent import activity
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          {importActivity.length === 0 ? (
-            <p className="px-6 pb-6 text-sm text-muted-foreground">
-              No imports yet.
-            </p>
-          ) : (
-            <div className="divide-y">
-              {importActivity.slice(0, 5).map((a) => (
-                <div
-                  key={a.id}
-                  className="flex items-center justify-between px-6 py-3 text-sm"
-                >
-                  <div>
-                    <p className="font-medium">
-                      {a.source === "csv"
-                        ? "CSV import"
-                        : a.source === "ics"
-                          ? "ICS feed sync"
-                          : "Google Calendar sync"}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(a.started_at).toLocaleString()}
-                    </p>
-                  </div>
-                  <span className="text-xs text-muted-foreground">
-                    {a.records_created} created · {a.records_skipped} skipped
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 }
