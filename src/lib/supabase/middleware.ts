@@ -100,5 +100,40 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Subscribe/trial gate: a coach without an active subscription or trial
+  // can still reach Settings (to actually subscribe) and Support/Help
+  // Centre, but not the parts of the app that do real work. Only checked
+  // on these paths, not every request, since it costs a round trip to the
+  // API.
+  const GATED_PATHS = ["/dashboard", "/calendar", "/studios", "/earnings", "/invoices"];
+  if (
+    user &&
+    !isAdmin &&
+    GATED_PATHS.some((path) => pathname.startsWith(path))
+  ) {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (session) {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+        const res = await fetch(`${apiUrl}/billing/status`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        if (res.ok) {
+          const status = (await res.json()) as { hasAccess: boolean };
+          if (!status.hasAccess) {
+            const url = request.nextUrl.clone();
+            url.pathname = "/subscribe";
+            url.search = "";
+            return NextResponse.redirect(url);
+          }
+        }
+      } catch {
+        // Fail open: an API hiccup shouldn't lock coaches out of the app.
+      }
+    }
+  }
+
   return supabaseResponse;
 }

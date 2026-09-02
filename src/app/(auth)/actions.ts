@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 export type AuthActionState = {
   error?: string;
   success?: string;
+  confirmEmail?: string;
 };
 
 export async function login(
@@ -59,7 +60,20 @@ export async function register(
   return {
     success:
       "Account created. Check your email to confirm your address before logging in.",
+    confirmEmail: email,
   };
+}
+
+export async function resendConfirmationEmail(
+  email: string,
+): Promise<{ error?: string; success?: string }> {
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resend({ type: "signup", email });
+
+  if (error) {
+    return { error: error.message };
+  }
+  return { success: "Confirmation email sent again." };
 }
 
 export async function logout() {
