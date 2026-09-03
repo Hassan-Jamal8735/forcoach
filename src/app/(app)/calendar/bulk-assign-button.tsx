@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { bulkAssignEvents } from "./actions";
+import { toast } from "@/lib/toast";
 import {
   Select,
   SelectContent,
@@ -34,9 +35,15 @@ export function BulkAssignButton({
       );
       if (result.error) {
         setError(result.error);
+        toast(result.error, "destructive");
       } else {
         setStudioId("");
         onDone();
+        toast(
+          value === UNASSIGN
+            ? `Cleared studio on ${ids.length} event${ids.length === 1 ? "" : "s"}`
+            : `Assigned ${ids.length} event${ids.length === 1 ? "" : "s"}`,
+        );
       }
     });
   }

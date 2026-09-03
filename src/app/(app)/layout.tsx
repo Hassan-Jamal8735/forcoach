@@ -1,6 +1,7 @@
 import { SidebarNav } from "@/components/layout/sidebar-nav";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { TopBar } from "@/components/layout/top-bar";
+import { Toaster } from "@/components/ui/toaster";
 import { createClient } from "@/lib/supabase/server";
 import { ADMIN_EMAIL } from "@/lib/admin";
 
@@ -30,6 +31,7 @@ export default async function AppLayout({
         </main>
       </div>
       <MobileNav isAdmin={isAdmin} />
+      <Toaster />
     </div>
   );
 }

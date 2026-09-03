@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { bulkDeleteEvents } from "./actions";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -57,9 +58,11 @@ export function BulkDeleteButton({
                 const result = await bulkDeleteEvents(ids);
                 if (result.error) {
                   setError(result.error);
+                  toast(result.error, "destructive");
                 } else {
                   setOpen(false);
                   onDone();
+                  toast(`${ids.length} event${ids.length === 1 ? "" : "s"} deleted`);
                 }
               });
             }}

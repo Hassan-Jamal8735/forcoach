@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { createStudio, updateStudio } from "./actions";
 import type { CompensationType, RateTierInput, Studio } from "@/lib/api/studios";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -97,8 +98,10 @@ export function StudioFormDialog({
                 : await createStudio({}, formData);
               if (result.error) {
                 setError(result.error);
+                toast(result.error, "destructive");
               } else {
                 setOpen(false);
+                toast(studio ? "Studio updated" : "Studio added");
               }
             });
           }}

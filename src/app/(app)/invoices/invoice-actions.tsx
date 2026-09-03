@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { generateInvoice, archiveInvoice, deleteInvoice } from "./actions";
+import { toast } from "@/lib/toast";
 import type { Invoice } from "@/lib/api/invoices";
 import { Button } from "@/components/ui/button";
 import {
@@ -63,7 +64,13 @@ export function InvoiceActions({ invoice }: { invoice: Invoice }) {
             setError(null);
             setIsDownloading(true);
             downloadInvoicePdf(invoice.id, invoice.invoice_number)
-              .catch((err) => setError(err instanceof Error ? err.message : "Failed to download the PDF."))
+              .then(() => toast("PDF downloaded"))
+              .catch((err) => {
+                const message =
+                  err instanceof Error ? err.message : "Failed to download the PDF.";
+                setError(message);
+                toast(message, "destructive");
+              })
               .finally(() => setIsDownloading(false));
           }}
         >
@@ -97,8 +104,13 @@ export function InvoiceActions({ invoice }: { invoice: Invoice }) {
                     e.preventDefault();
                     startTransition(async () => {
                       const result = await generateInvoice(invoice.id);
-                      if (result.error) setError(result.error);
-                      else setGenerateOpen(false);
+                      if (result.error) {
+                        setError(result.error);
+                        toast(result.error, "destructive");
+                      } else {
+                        setGenerateOpen(false);
+                        toast("Invoice generated");
+                      }
                     });
                   }}
                 >
@@ -131,8 +143,13 @@ export function InvoiceActions({ invoice }: { invoice: Invoice }) {
                     e.preventDefault();
                     startTransition(async () => {
                       const result = await deleteInvoice(invoice.id);
-                      if (result.error) setError(result.error);
-                      else setDeleteOpen(false);
+                      if (result.error) {
+                        setError(result.error);
+                        toast(result.error, "destructive");
+                      } else {
+                        setDeleteOpen(false);
+                        toast("Draft deleted");
+                      }
                     });
                   }}
                 >
@@ -169,8 +186,13 @@ export function InvoiceActions({ invoice }: { invoice: Invoice }) {
                   e.preventDefault();
                   startTransition(async () => {
                     const result = await archiveInvoice(invoice.id);
-                    if (result.error) setError(result.error);
-                    else setArchiveOpen(false);
+                    if (result.error) {
+                      setError(result.error);
+                      toast(result.error, "destructive");
+                    } else {
+                      setArchiveOpen(false);
+                      toast("Invoice archived");
+                    }
                   });
                 }}
               >
