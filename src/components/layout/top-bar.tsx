@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { logout } from "@/app/(auth)/actions";
+import { GlobalSearch } from "./global-search";
 
 function initialsFrom(nameOrEmail: string) {
   const trimmed = nameOrEmail.trim();
@@ -36,7 +37,7 @@ export function TopBar({
       <div className="md:hidden font-heading text-base font-semibold">
         FORCOACH
       </div>
-      <div className="hidden md:block" />
+      <GlobalSearch />
       <DropdownMenu>
         <DropdownMenuTrigger className="group flex items-center gap-1.5 rounded-full outline-none">
           <Avatar className="size-8">
