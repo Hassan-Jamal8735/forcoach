@@ -63,7 +63,7 @@ export function TimeGrid({
   }
 
   return (
-    <div className="flex rounded-lg border">
+    <div className="flex min-w-0 rounded-lg border">
       <div className="w-14 shrink-0 border-r">
         <div className="h-10 border-b" />
         <div className="relative" style={{ height: gridHeight }}>
@@ -79,7 +79,7 @@ export function TimeGrid({
         </div>
       </div>
 
-      <div className="flex flex-1 overflow-x-auto">
+      <div className="flex min-w-0 flex-1 overflow-x-auto">
         {days.map((day) => {
           const key = dateKey(day);
           const dayEvents = eventsByDay.get(key) ?? [];
