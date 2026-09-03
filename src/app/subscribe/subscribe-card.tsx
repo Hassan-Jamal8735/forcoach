@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { Check } from "lucide-react";
 import type { BillingStatus, Plan } from "@/lib/api/billing";
 import { Button } from "@/components/ui/button";
@@ -110,13 +111,19 @@ export function SubscribeCard({ billing }: { billing: BillingStatus }) {
           Secure checkout via Stripe. Cancel anytime.
         </p>
 
-        <button
-          type="button"
-          onClick={() => logout()}
-          className="mx-auto block text-xs text-muted-foreground underline hover:text-foreground"
-        >
-          Log out
-        </button>
+        <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground">
+          <Link href="/support" className="underline hover:text-foreground">
+            Need help? Contact support
+          </Link>
+          <span>·</span>
+          <button
+            type="button"
+            onClick={() => logout()}
+            className="underline hover:text-foreground"
+          >
+            Log out
+          </button>
+        </div>
       </CardContent>
     </Card>
   );

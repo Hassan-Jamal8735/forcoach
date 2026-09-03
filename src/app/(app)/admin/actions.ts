@@ -169,3 +169,36 @@ export async function clearYearlyDiscount(): Promise<{ error?: string }> {
   revalidatePath("/admin/billing");
   return {};
 }
+
+export async function grantAccess(
+  userId: string,
+  days: number,
+): Promise<{ error?: string }> {
+  try {
+    await apiFetch(`/admin/users/${userId}/grant-access`, {
+      method: "POST",
+      body: JSON.stringify({ days }),
+    });
+  } catch (err) {
+    return {
+      error: err instanceof ApiError ? err.message : "Failed to grant access",
+    };
+  }
+  revalidatePath("/admin/users");
+  return {};
+}
+
+export async function revokeAccess(userId: string): Promise<{ error?: string }> {
+  try {
+    await apiFetch(`/admin/users/${userId}/grant-access`, {
+      method: "DELETE",
+    });
+  } catch (err) {
+    return {
+      error:
+        err instanceof ApiError ? err.message : "Failed to revoke access",
+    };
+  }
+  revalidatePath("/admin/users");
+  return {};
+}

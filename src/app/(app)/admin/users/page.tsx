@@ -2,6 +2,7 @@ import { apiFetch } from "@/lib/api/server-client";
 import type { AdminUser } from "@/lib/api/admin";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { AccessControl } from "./access-control";
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -46,6 +47,7 @@ export default async function AdminUsersPage() {
                 <th className="px-4 py-2 font-medium">Joined</th>
                 <th className="px-4 py-2 font-medium">Last seen</th>
                 <th className="px-4 py-2 font-medium">Subscription</th>
+                <th className="px-4 py-2 font-medium">Access</th>
                 <th className="px-4 py-2 font-medium">Studios</th>
                 <th className="px-4 py-2 font-medium">Classes</th>
                 <th className="px-4 py-2 font-medium">Invoices</th>
@@ -73,6 +75,9 @@ export default async function AdminUsersPage() {
                     <Badge variant={SUBSCRIPTION_VARIANT[u.subscriptionStatus] ?? "outline"}>
                       {u.subscriptionStatus}
                     </Badge>
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      {u.accessReason}
+                    </div>
                     {u.promoCode && (
                       <div className="mt-1 text-xs text-muted-foreground">
                         {u.promoCode}
@@ -82,6 +87,13 @@ export default async function AdminUsersPage() {
                           }`}
                       </div>
                     )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <AccessControl
+                      key={u.adminOverrideUntil ?? "none"}
+                      userId={u.id}
+                      adminOverrideUntil={u.adminOverrideUntil}
+                    />
                   </td>
                   <td className="px-4 py-3">{u.studioCount}</td>
                   <td className="px-4 py-3">{u.classCount}</td>

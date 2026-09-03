@@ -24,6 +24,8 @@ export type AdminUser = {
   promoCode: string | null;
   discountPercentOff: number | null;
   discountDuration: string | null;
+  adminOverrideUntil: string | null;
+  accessReason: string;
 };
 
 export type PromoCode = {
