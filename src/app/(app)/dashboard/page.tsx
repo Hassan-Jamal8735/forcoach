@@ -1,11 +1,17 @@
+import Link from "next/link";
 import { apiFetch } from "@/lib/api/server-client";
 import type { Event } from "@/lib/api/events";
 import type { Studio } from "@/lib/api/studios";
 import type { EarningsSummary, EarningsTimeseries } from "@/lib/api/earnings";
+import type { BillingStatus } from "@/lib/api/billing";
+import type { GoogleCalendarStatus } from "@/lib/api/google-calendar";
+import type { IcsFeed } from "@/lib/api/ics-feeds";
+import type { Invoice } from "@/lib/api/invoices";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/currency";
 import { getUserCurrency } from "@/lib/user-currency";
+import { OnboardingChecklist } from "./onboarding-checklist";
 
 
 function monthLabel(bucket: string) {
@@ -20,16 +26,53 @@ export default async function DashboardPage() {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1);
 
-  const [studios, events, summary, timeseries] = await Promise.all([
-    apiFetch<Studio[]>("/studios"),
-    apiFetch<Event[]>("/events"),
-    apiFetch<EarningsSummary>(
-      `/earnings/summary?from=${monthStart.toISOString()}&to=${now.toISOString()}`,
-    ),
-    apiFetch<EarningsTimeseries>(
-      `/earnings/timeseries?from=${twelveMonthsAgo.toISOString()}&to=${now.toISOString()}&granularity=month`,
-    ),
-  ]);
+  const [studios, events, summary, timeseries, billing, googleStatus, icsFeeds, invoices] =
+    await Promise.all([
+      apiFetch<Studio[]>("/studios"),
+      apiFetch<Event[]>("/events"),
+      apiFetch<EarningsSummary>(
+        `/earnings/summary?from=${monthStart.toISOString()}&to=${now.toISOString()}`,
+      ),
+      apiFetch<EarningsTimeseries>(
+        `/earnings/timeseries?from=${twelveMonthsAgo.toISOString()}&to=${now.toISOString()}&granularity=month`,
+      ),
+      apiFetch<BillingStatus>("/billing/status"),
+      apiFetch<GoogleCalendarStatus>("/calendar/google/status"),
+      apiFetch<IcsFeed[]>("/ics-feeds"),
+      apiFetch<Invoice[]>("/invoices"),
+    ]);
+
+  const onboardingSteps = [
+    {
+      label: "Connect a calendar",
+      done: googleStatus.connected || icsFeeds.length > 0,
+      href: "/settings",
+      cta: "Connect",
+    },
+    {
+      label: "Add a studio",
+      done: studios.length > 0,
+      href: "/studios",
+      cta: "Add studio",
+    },
+    {
+      label: "Create your first invoice",
+      done: invoices.length > 0,
+      href: "/invoices",
+      cta: "Create invoice",
+    },
+  ];
+
+  const trialDaysLeft =
+    billing.status === "trialing" && billing.currentPeriodEnd
+      ? Math.max(
+          0,
+          Math.ceil(
+            (new Date(billing.currentPeriodEnd).getTime() - now.getTime()) /
+              (24 * 60 * 60 * 1000),
+          ),
+        )
+      : null;
 
   const currencyCode = await getUserCurrency();
   const money = (v: number) => formatCurrency(v, currencyCode);
@@ -76,6 +119,44 @@ export default async function DashboardPage() {
           Your coaching business at a glance.
         </p>
       </div>
+
+      <OnboardingChecklist steps={onboardingSteps} />
+
+      {trialDaysLeft != null && (
+        <Card className="border-accent/30 bg-accent/5">
+          <CardContent className="flex flex-wrap items-center justify-between gap-2 py-4 text-sm">
+            <span>
+              {trialDaysLeft === 0
+                ? "Your free trial ends today."
+                : `${trialDaysLeft} day${trialDaysLeft === 1 ? "" : "s"} left in your free trial.`}{" "}
+              Your card will be charged automatically when it ends.
+            </span>
+            <Link
+              href="/settings"
+              className="text-sm font-medium text-accent hover:underline"
+            >
+              Manage subscription
+            </Link>
+          </CardContent>
+        </Card>
+      )}
+
+      {billing.status === "past_due" && (
+        <Card className="border-destructive/30 bg-destructive/5">
+          <CardContent className="flex flex-wrap items-center justify-between gap-2 py-4 text-sm">
+            <span>
+              Your last payment failed. Update your payment method to keep
+              your subscription active.
+            </span>
+            <Link
+              href="/settings"
+              className="text-sm font-medium text-destructive hover:underline"
+            >
+              Fix payment
+            </Link>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {KPI_CARDS.map((card) => (

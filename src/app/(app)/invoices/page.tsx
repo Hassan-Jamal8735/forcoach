@@ -124,9 +124,24 @@ export default async function InvoicesPage() {
               No invoices yet
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">
-            Create your first invoice once you have assigned classes for a
-            studio and billing period.
+          <CardContent className="space-y-3 text-sm text-muted-foreground">
+            {studios.length === 0 ? (
+              <p>
+                Add a studio first, then create an invoice once you have
+                assigned classes for a billing period.{" "}
+                <Link href="/studios" className="text-accent hover:underline">
+                  Add a studio &rarr;
+                </Link>
+              </p>
+            ) : (
+              <p>
+                Create your first invoice once you have assigned classes for
+                a studio and billing period.{" "}
+                <Link href="/calendar" className="text-accent hover:underline">
+                  Go to Calendar &rarr;
+                </Link>
+              </p>
+            )}
           </CardContent>
         </Card>
       ) : (
