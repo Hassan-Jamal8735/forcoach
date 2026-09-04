@@ -184,6 +184,14 @@ export function EventFormDialog({
                   setStartDate(e.target.value);
                   applyDuration(duration, e.target.value, startTime);
                 }}
+                // Safari/WebKit is known to sometimes only fire `input`, not
+                // `change`, when a date is picked via its native calendar
+                // widget — duplicate the handler so either event commits it.
+                onInput={(e) => {
+                  const value = (e.target as HTMLInputElement).value;
+                  setStartDate(value);
+                  applyDuration(duration, value, startTime);
+                }}
               />
             </div>
             <div className="space-y-2">
@@ -208,6 +216,12 @@ export function EventFormDialog({
                   if (!e.target.value) return;
                   setStartTime(e.target.value);
                   applyDuration(duration, startDate, e.target.value);
+                }}
+                onInput={(e) => {
+                  const value = (e.target as HTMLInputElement).value;
+                  if (!value) return;
+                  setStartTime(value);
+                  applyDuration(duration, startDate, value);
                 }}
               />
             </div>
@@ -242,6 +256,7 @@ export function EventFormDialog({
                   required
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
+                  onInput={(e) => setEndDate((e.target as HTMLInputElement).value)}
                 />
               </div>
               <div className="space-y-2">
@@ -255,6 +270,11 @@ export function EventFormDialog({
                   onChange={(e) => {
                     if (!e.target.value) return;
                     setEndTime(e.target.value);
+                  }}
+                  onInput={(e) => {
+                    const value = (e.target as HTMLInputElement).value;
+                    if (!value) return;
+                    setEndTime(value);
                   }}
                 />
               </div>

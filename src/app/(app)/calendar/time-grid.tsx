@@ -17,6 +17,46 @@ function overlapsAny(event: Event, dayEvents: Event[]): boolean {
   });
 }
 
+// Assigns each event a column (0-based) and a column count so overlapping
+// events render side by side instead of fully stacked — otherwise the
+// bottom one is unreachable to click/delete.
+function layoutColumns(dayEvents: Event[]): Map<string, { col: number; cols: number }> {
+  const sorted = [...dayEvents].sort(
+    (a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime(),
+  );
+  const layout = new Map<string, { col: number; cols: number }>();
+  let cluster: Event[] = [];
+  let clusterEnd = -Infinity;
+
+  function flush() {
+    if (cluster.length === 0) return;
+    const colEnds: number[] = [];
+    for (const e of cluster) {
+      const start = new Date(e.start_time).getTime();
+      const end = new Date(e.end_time).getTime();
+      let col = colEnds.findIndex((endTime) => endTime <= start);
+      if (col === -1) {
+        col = colEnds.length;
+        colEnds.push(end);
+      } else {
+        colEnds[col] = end;
+      }
+      layout.set(e.id, { col, cols: 0 });
+    }
+    for (const e of cluster) layout.get(e.id)!.cols = colEnds.length;
+    cluster = [];
+  }
+
+  for (const e of sorted) {
+    const start = new Date(e.start_time).getTime();
+    if (cluster.length > 0 && start >= clusterEnd) flush();
+    cluster.push(e);
+    clusterEnd = Math.max(clusterEnd, new Date(e.end_time).getTime());
+  }
+  flush();
+  return layout;
+}
+
 const HOUR_HEIGHT = 56; // px per hour
 const DEFAULT_START_HOUR = 8;
 const DEFAULT_END_HOUR = 21; // 9 PM
@@ -96,6 +136,7 @@ export function TimeGrid({
           const key = dateKey(day);
           const dayEvents = eventsByDay.get(key) ?? [];
           const isToday = key === dateKey(new Date());
+          const columns = layoutColumns(dayEvents);
           return (
             <div
               key={key}
@@ -132,6 +173,8 @@ export function TimeGrid({
                       HOUR_HEIGHT,
                   );
                   const overlapping = overlapsAny(event, dayEvents);
+                  const { col, cols } = columns.get(event.id) ?? { col: 0, cols: 1 };
+                  const widthPct = 100 / cols;
                   return (
                     <EventFormDialog
                       key={event.id}
@@ -141,13 +184,18 @@ export function TimeGrid({
                         <button
                           type="button"
                           className={cn(
-                            "absolute inset-x-1 overflow-hidden rounded-md border px-2 py-1 text-left text-xs transition-colors",
+                            "absolute overflow-hidden rounded-md border px-2 py-1 text-left text-xs transition-colors",
                             overlapping
                               ? "border-destructive/50 bg-destructive/10 hover:bg-destructive/20"
                               : "border-accent/30 bg-accent/10 hover:bg-accent/20",
                             event.status === "excluded" && "opacity-50",
                           )}
-                          style={{ top, height }}
+                          style={{
+                            top,
+                            height,
+                            left: `calc(${col * widthPct}% + 2px)`,
+                            width: `calc(${widthPct}% - 4px)`,
+                          }}
                         >
                           <p className="flex items-center gap-1 truncate font-medium text-foreground">
                             {overlapping && (
