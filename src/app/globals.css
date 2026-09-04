@@ -184,7 +184,7 @@
    scrollbar looks out of place against the app's rounded, accent-colored UI,
    especially in dark mode where it stays light regardless of theme. */
 * {
-  scrollbar-color: var(--accent) transparent;
+  scrollbar-color: color-mix(in srgb, var(--accent) 70%, black) transparent;
   scrollbar-width: thin;
 }
 
@@ -198,13 +198,13 @@
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  background-color: color-mix(in srgb, var(--accent) 70%, black);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background-color: var(--accent);
+  background-color: color-mix(in srgb, var(--accent) 85%, black);
   background-clip: content-box;
 }

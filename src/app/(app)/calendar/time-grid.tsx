@@ -139,19 +139,16 @@ export function TimeGrid({
   } | null>(null);
   const eventById = new Map(allEvents.map((e) => [e.id, e]));
 
-  function timeFromOffsetY(offsetY: number) {
-    const rawMinutes = startHour * 60 + (offsetY / HOUR_HEIGHT) * 60;
-    return Math.max(0, Math.round(rawMinutes / 5) * 5);
-  }
-
   function minutesToTime(minutes: number) {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
     return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
   }
 
-  // Returns the day column + snapped top offset (in px) the pointer is
-  // currently over, accounting for where the class was originally grabbed.
+  // Continuous (unsnapped) position while actively dragging, for a smooth
+  // 1:1 pointer-follow feel; snapping to 5-minute steps only happens once,
+  // at drop, via snapTopToGrid — otherwise the preview visibly jumps in
+  // 5-minute increments instead of tracking the pointer fluidly.
   function resolveDropTarget(e: { clientX: number; clientY: number }) {
     const drag = dragRef.current;
     if (!drag) return null;
@@ -163,11 +160,16 @@ export function TimeGrid({
         e.clientY >= rect.top &&
         e.clientY <= rect.bottom
       ) {
-        const snappedMinutes = timeFromOffsetY(e.clientY - rect.top - drag.grabOffsetY);
-        return { key, top: (snappedMinutes - startHour * 60) / 60 * HOUR_HEIGHT };
+        const rawTop = Math.max(0, e.clientY - rect.top - drag.grabOffsetY);
+        return { key, top: Math.min(rawTop, gridHeight - drag.height) };
       }
     }
     return null;
+  }
+
+  function snapTopToGrid(top: number) {
+    const rawMinutes = startHour * 60 + (top / HOUR_HEIGHT) * 60;
+    return Math.round(rawMinutes / 5) * 5;
   }
 
   function handlePointerMove(e: React.PointerEvent) {
@@ -192,8 +194,8 @@ export function TimeGrid({
 
     const target = resolveDropTarget(e);
     if (!target) return;
-    const snappedMinutes = startHour * 60 + (target.top / HOUR_HEIGHT) * 60;
-    const start = new Date(`${target.key}T${minutesToTime(Math.round(snappedMinutes))}`);
+    const snappedMinutes = snapTopToGrid(target.top);
+    const start = new Date(`${target.key}T${minutesToTime(snappedMinutes)}`);
     const end = new Date(start.getTime() + drag.durationMinutes * 60_000);
     void moveEvent(drag.id, start.toISOString(), end.toISOString());
   }
@@ -251,7 +253,7 @@ export function TimeGrid({
                   const rect = e.currentTarget.getBoundingClientRect();
                   setNewSlot({
                     date: dateKey(day),
-                    time: minutesToTime(timeFromOffsetY(e.clientY - rect.top)),
+                    time: minutesToTime(snapTopToGrid(e.clientY - rect.top)),
                   });
                 }}
               >
@@ -304,7 +306,7 @@ export function TimeGrid({
                             }
                           }}
                           className={cn(
-                            "absolute cursor-grab overflow-hidden rounded-md border px-2 py-1 text-left text-xs transition-colors active:cursor-grabbing",
+                            "absolute cursor-grab touch-none overflow-hidden rounded-md border px-2 py-1 text-left text-xs transition-colors select-none active:cursor-grabbing",
                             overlapping
                               ? "border-destructive/50 bg-destructive/10 hover:bg-destructive/20"
                               : "border-accent/30 bg-accent/10 hover:bg-accent/20",
@@ -315,7 +317,6 @@ export function TimeGrid({
                             height,
                             left: `calc(${col * widthPct}% + 2px)`,
                             width: `calc(${widthPct}% - 4px)`,
-                            touchAction: "none",
                           }}
                         >
                           <p className="flex items-center gap-1 truncate font-medium text-foreground">
@@ -335,8 +336,12 @@ export function TimeGrid({
                 })}
                 {dragPreview?.dayKey === key && (
                   <div
-                    className="pointer-events-none absolute inset-x-1 z-10 overflow-hidden rounded-md border border-accent bg-accent/25 px-2 py-1 text-left text-xs shadow-lg"
-                    style={{ top: dragPreview.top, height: dragPreview.height }}
+                    className="pointer-events-none absolute inset-x-1 top-0 z-10 overflow-hidden rounded-md border border-accent bg-accent/25 px-2 py-1 text-left text-xs shadow-lg select-none"
+                    style={{
+                      height: dragPreview.height,
+                      transform: `translateY(${dragPreview.top}px)`,
+                      willChange: "transform",
+                    }}
                   >
                     <p className="truncate font-medium text-foreground">
                       {eventById.get(dragPreview.id)?.title}
