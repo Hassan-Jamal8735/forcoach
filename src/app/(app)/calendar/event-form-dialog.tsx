@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { createEvent, deleteEvent, updateEvent } from "./actions";
 import type { Event } from "@/lib/api/events";
 import { toast } from "@/lib/toast";
+import { TIME_OPTIONS } from "@/lib/time-options";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -196,34 +197,31 @@ export function EventFormDialog({
             </div>
             <div className="space-y-2">
               <Label htmlFor="startTime">Start time *</Label>
-              <Input
-                id="startTime"
-                name="startTime"
-                type="time"
-                step={60}
-                required
+              <Select
                 value={startTime}
-                onChange={(e) => {
-                  // Native time inputs fire onChange with "" for every
-                  // in-progress keystroke until all segments (hour, minute,
-                  // AM/PM) are filled. Committing that "" back as the
-                  // controlled value resets the widget's own display mid-type
-                  // — on desktop (typed segment by segment) this makes the
-                  // field nearly unusable and trips the browser's own
-                  // "Invalid value" bubble. Mobile's picker only ever emits a
-                  // complete value, which is why this only shows up on
-                  // desktop. Ignore empty intermediate values entirely.
-                  if (!e.target.value) return;
-                  setStartTime(e.target.value);
-                  applyDuration(duration, startDate, e.target.value);
+                onValueChange={(v) => {
+                  if (!v) return;
+                  setStartTime(v);
+                  applyDuration(duration, startDate, v);
                 }}
-                onInput={(e) => {
-                  const value = (e.target as HTMLInputElement).value;
-                  if (!value) return;
-                  setStartTime(value);
-                  applyDuration(duration, startDate, value);
-                }}
-              />
+              >
+                <SelectTrigger id="startTime" className="w-full">
+                  <SelectValue>
+                    {(value: string) =>
+                      TIME_OPTIONS.find((t) => t.value === value)?.label ??
+                      "Select a time"
+                    }
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  {TIME_OPTIONS.map((t) => (
+                    <SelectItem key={t.value} value={t.value}>
+                      {t.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <input type="hidden" name="startTime" value={startTime} />
             </div>
           </div>
           <div className="space-y-2">
@@ -261,22 +259,23 @@ export function EventFormDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="endTime">End time *</Label>
-                <Input
-                  id="endTime"
-                  type="time"
-                  step={60}
-                  required
-                  value={endTime}
-                  onChange={(e) => {
-                    if (!e.target.value) return;
-                    setEndTime(e.target.value);
-                  }}
-                  onInput={(e) => {
-                    const value = (e.target as HTMLInputElement).value;
-                    if (!value) return;
-                    setEndTime(value);
-                  }}
-                />
+                <Select value={endTime} onValueChange={(v) => v && setEndTime(v)}>
+                  <SelectTrigger id="endTime" className="w-full">
+                    <SelectValue>
+                      {(value: string) =>
+                        TIME_OPTIONS.find((t) => t.value === value)?.label ??
+                        "Select a time"
+                      }
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="max-h-72">
+                    {TIME_OPTIONS.map((t) => (
+                      <SelectItem key={t.value} value={t.value}>
+                        {t.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           )}
