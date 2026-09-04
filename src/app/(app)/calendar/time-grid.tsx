@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { dateKey } from "@/lib/date";
 import type { Event } from "@/lib/api/events";
+import { moveEvent } from "./actions";
 import { EventFormDialog } from "./event-form-dialog";
 
 function overlapsAny(event: Event, dayEvents: Event[]): boolean {
@@ -114,6 +116,33 @@ export function TimeGrid({
     return (minutesFromStart / 60) * HOUR_HEIGHT;
   }
 
+  // Clicking empty grid space opens "Add event" prefilled with that time;
+  // dragging an existing class onto a new spot moves it there.
+  const [newSlot, setNewSlot] = useState<{ date: string; time: string } | null>(null);
+  const [dragOverKey, setDragOverKey] = useState<string | null>(null);
+
+  function timeFromOffsetY(offsetY: number) {
+    const rawMinutes = startHour * 60 + (offsetY / HOUR_HEIGHT) * 60;
+    const snapped = Math.round(rawMinutes / 15) * 15;
+    const h = Math.floor(snapped / 60);
+    const m = snapped % 60;
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+  }
+
+  function handleDrop(day: Date, e: React.DragEvent) {
+    e.preventDefault();
+    setDragOverKey(null);
+    const id = e.dataTransfer.getData("text/plain");
+    const durationMinutes = Number(e.dataTransfer.getData("application/x-duration-min"));
+    if (!id || !durationMinutes) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const time = timeFromOffsetY(e.clientY - rect.top);
+    const dateStr = dateKey(day);
+    const start = new Date(`${dateStr}T${time}`);
+    const end = new Date(start.getTime() + durationMinutes * 60_000);
+    void moveEvent(id, start.toISOString(), end.toISOString());
+  }
+
   return (
     <div className="flex min-w-0 rounded-lg border">
       <div className="w-14 shrink-0 border-r">
@@ -155,11 +184,28 @@ export function TimeGrid({
                       day: "numeric",
                     })}
               </div>
-              <div className="relative" style={{ height: gridHeight }}>
+              <div
+                className={cn(
+                  "relative",
+                  dragOverKey === key && "bg-accent/5",
+                )}
+                style={{ height: gridHeight }}
+                onClick={(e) => {
+                  if (e.target !== e.currentTarget) return;
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  setNewSlot({ date: dateKey(day), time: timeFromOffsetY(e.clientY - rect.top) });
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOverKey(key);
+                }}
+                onDragLeave={() => setDragOverKey((k) => (k === key ? null : k))}
+                onDrop={(e) => handleDrop(day, e)}
+              >
                 {hours.slice(0, -1).map((hour, i) => (
                   <div
                     key={hour}
-                    className="absolute inset-x-0 border-t border-border/60"
+                    className="pointer-events-none absolute inset-x-0 border-t border-border/60"
                     style={{ top: i * HOUR_HEIGHT + HOUR_HEIGHT }}
                   />
                 ))}
@@ -183,8 +229,16 @@ export function TimeGrid({
                       trigger={
                         <button
                           type="button"
+                          draggable
+                          onDragStart={(e) => {
+                            e.dataTransfer.setData("text/plain", event.id);
+                            e.dataTransfer.setData(
+                              "application/x-duration-min",
+                              String((end.getTime() - start.getTime()) / 60_000),
+                            );
+                          }}
                           className={cn(
-                            "absolute overflow-hidden rounded-md border px-2 py-1 text-left text-xs transition-colors",
+                            "absolute cursor-grab overflow-hidden rounded-md border px-2 py-1 text-left text-xs transition-colors active:cursor-grabbing",
                             overlapping
                               ? "border-destructive/50 bg-destructive/10 hover:bg-destructive/20"
                               : "border-accent/30 bg-accent/10 hover:bg-accent/20",
@@ -217,6 +271,18 @@ export function TimeGrid({
           );
         })}
       </div>
+      {newSlot && (
+        <EventFormDialog
+          key={`${newSlot.date}-${newSlot.time}`}
+          studios={studioOptions}
+          open={!!newSlot}
+          onOpenChange={(next) => {
+            if (!next) setNewSlot(null);
+          }}
+          initialDate={newSlot.date}
+          initialTime={newSlot.time}
+        />
+      )}
     </div>
   );
 }

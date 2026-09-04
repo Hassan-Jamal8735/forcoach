@@ -84,17 +84,45 @@ function addMinutes(
   };
 }
 
+const REPEAT_OPTIONS = [
+  { value: "none", label: "Does not repeat" },
+  { value: "daily", label: "Every day" },
+  { value: "weekly", label: "Every week" },
+  { value: "monthly", label: "Every month" },
+] as const;
+
+// Adds `n` of the given unit to a "YYYY-MM-DD" date string.
+function shiftDate(date: string, unit: "daily" | "weekly" | "monthly", n: number) {
+  const d = new Date(`${date}T00:00`);
+  if (unit === "daily") d.setDate(d.getDate() + n);
+  else if (unit === "weekly") d.setDate(d.getDate() + n * 7);
+  else d.setMonth(d.getMonth() + n);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 export function EventFormDialog({
   event,
   studios,
   trigger,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+  initialDate,
+  initialTime,
 }: {
   event?: Event;
   studios: { id: string; name: string; compensation_type?: string }[];
-  trigger: React.ReactElement;
+  trigger?: React.ReactElement;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  initialDate?: string;
+  initialTime?: string;
 }) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = controlledOnOpenChange ?? setInternalOpen;
   const [error, setError] = useState<string | undefined>();
+  const [repeat, setRepeat] = useState<(typeof REPEAT_OPTIONS)[number]["value"]>("none");
+  const [repeatCount, setRepeatCount] = useState("4");
   const [isPending, startTransition] = useTransition();
   const [studioId, setStudioId] = useState(event?.studio_id ?? "none");
   const selectedStudio = studios.find((s) => s.id === studioId);
@@ -110,17 +138,21 @@ export function EventFormDialog({
       : "custom";
 
   const [startDate, setStartDate] = useState(
-    dateInputValue(event?.start_time) ?? "",
+    dateInputValue(event?.start_time) ?? initialDate ?? "",
   );
   const [startTime, setStartTime] = useState(
-    timeInputValue(event?.start_time) ?? "",
+    timeInputValue(event?.start_time) ?? initialTime ?? "",
   );
   const [duration, setDuration] = useState(initialPreset);
+  const initialEnd =
+    !event && initialDate && initialTime
+      ? addMinutes(initialDate, initialTime, Number(initialPreset))
+      : null;
   const [endDate, setEndDate] = useState(
-    dateInputValue(event?.end_time) ?? "",
+    dateInputValue(event?.end_time) ?? initialEnd?.date ?? "",
   );
   const [endTime, setEndTime] = useState(
-    timeInputValue(event?.end_time) ?? "",
+    timeInputValue(event?.end_time) ?? initialEnd?.time ?? "",
   );
 
   // Keep the computed end in sync while a preset (not "custom") is active.
@@ -143,7 +175,7 @@ export function EventFormDialog({
         if (next) setError(undefined);
       }}
     >
-      <DialogTrigger render={trigger} />
+      {trigger && <DialogTrigger render={trigger} />}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{event ? "Edit event" : "Add event"}</DialogTitle>
@@ -151,14 +183,40 @@ export function EventFormDialog({
         <form
           action={(formData) => {
             startTransition(async () => {
-              const result = event
-                ? await updateEvent(event.id, {}, formData)
-                : await createEvent({}, formData);
-              if (result.error) {
-                setError(result.error);
-              } else {
+              if (event) {
+                const result = await updateEvent(event.id, {}, formData);
+                if (result.error) {
+                  setError(result.error);
+                  return;
+                }
                 setOpen(false);
+                return;
               }
+
+              // Recurring: create the first occurrence, then repeat with
+              // start/end shifted by the chosen unit, up to repeatCount times.
+              const occurrences = repeat === "none" ? 1 : Math.max(1, Number(repeatCount) || 1);
+              for (let i = 0; i < occurrences; i++) {
+                const unit = repeat as "daily" | "weekly" | "monthly";
+                const sDate = i === 0 ? startDate : shiftDate(startDate, unit, i);
+                const eDate = i === 0 ? endDate : shiftDate(endDate, unit, i);
+                const occurrence = new FormData();
+                for (const [key, value] of formData.entries()) {
+                  if (key === "startDate") occurrence.set(key, sDate);
+                  else if (key === "endDate") occurrence.set(key, eDate);
+                  else occurrence.set(key, value);
+                }
+                const result = await createEvent({}, occurrence);
+                if (result.error) {
+                  setError(
+                    i === 0
+                      ? result.error
+                      : `Created ${i} of ${occurrences} — then failed: ${result.error}`,
+                  );
+                  return;
+                }
+              }
+              setOpen(false);
             });
           }}
           className="space-y-4"
@@ -197,28 +255,6 @@ export function EventFormDialog({
             </div>
             <div className="space-y-2">
               <Label htmlFor="startTime">Start time *</Label>
-              {/* Native picker on mobile (works fine, better UX there);
-                  custom dropdown on desktop — Safari desktop renders
-                  <input type="time"> as a plain text field with no picker
-                  at all, unlike Windows/mobile. */}
-              <Input
-                id="startTime"
-                type="time"
-                step={60}
-                className="sm:hidden"
-                value={startTime}
-                onChange={(e) => {
-                  if (!e.target.value) return;
-                  setStartTime(e.target.value);
-                  applyDuration(duration, startDate, e.target.value);
-                }}
-                onInput={(e) => {
-                  const value = (e.target as HTMLInputElement).value;
-                  if (!value) return;
-                  setStartTime(value);
-                  applyDuration(duration, startDate, value);
-                }}
-              />
               <Select
                 value={startTime}
                 onValueChange={(v) => {
@@ -227,7 +263,7 @@ export function EventFormDialog({
                   applyDuration(duration, startDate, v);
                 }}
               >
-                <SelectTrigger id="startTimeDesktop" className="hidden w-full sm:flex">
+                <SelectTrigger id="startTime" className="w-full">
                   <SelectValue>
                     {(value: string) =>
                       TIME_OPTIONS.find((t) => t.value === value)?.label ??
@@ -266,6 +302,43 @@ export function EventFormDialog({
               </SelectContent>
             </Select>
           </div>
+          {!event && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="repeat">Repeat</Label>
+                <Select value={repeat} onValueChange={(v) => setRepeat((v as typeof repeat) ?? "none")}>
+                  <SelectTrigger id="repeat" className="w-full">
+                    <SelectValue>
+                      {(value: string) =>
+                        REPEAT_OPTIONS.find((r) => r.value === value)?.label ??
+                        "Does not repeat"
+                      }
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {REPEAT_OPTIONS.map((r) => (
+                      <SelectItem key={r.value} value={r.value}>
+                        {r.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {repeat !== "none" && (
+                <div className="space-y-2">
+                  <Label htmlFor="repeatCount"># of classes</Label>
+                  <Input
+                    id="repeatCount"
+                    type="number"
+                    min="1"
+                    max="52"
+                    value={repeatCount}
+                    onChange={(e) => setRepeatCount(e.target.value)}
+                  />
+                </div>
+              )}
+            </div>
+          )}
           {duration === "custom" && (
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -281,24 +354,8 @@ export function EventFormDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="endTime">End time *</Label>
-                <Input
-                  id="endTime"
-                  type="time"
-                  step={60}
-                  className="sm:hidden"
-                  value={endTime}
-                  onChange={(e) => {
-                    if (!e.target.value) return;
-                    setEndTime(e.target.value);
-                  }}
-                  onInput={(e) => {
-                    const value = (e.target as HTMLInputElement).value;
-                    if (!value) return;
-                    setEndTime(value);
-                  }}
-                />
                 <Select value={endTime} onValueChange={(v) => v && setEndTime(v)}>
-                  <SelectTrigger id="endTimeDesktop" className="hidden w-full sm:flex">
+                  <SelectTrigger id="endTime" className="w-full">
                     <SelectValue>
                       {(value: string) =>
                         TIME_OPTIONS.find((t) => t.value === value)?.label ??

@@ -107,6 +107,25 @@ export async function updateEvent(
   return {};
 }
 
+// Used by drag-and-drop on the calendar grid — moves a class to a new start
+// time, keeping its original duration.
+export async function moveEvent(
+  id: string,
+  startTime: string,
+  endTime: string,
+): Promise<EventActionState> {
+  try {
+    await apiFetch<Event>(`/events/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ startTime, endTime }),
+    });
+  } catch (err) {
+    return { error: err instanceof ApiError ? err.message : "Failed to move event" };
+  }
+  revalidatePath("/calendar");
+  return {};
+}
+
 export async function deleteEvent(id: string): Promise<EventActionState> {
   try {
     await apiFetch(`/events/${id}`, { method: "DELETE" });

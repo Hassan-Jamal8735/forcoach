@@ -14,17 +14,39 @@ import { getUserCurrency } from "@/lib/user-currency";
 import { OnboardingChecklist } from "./onboarding-checklist";
 
 
-function monthLabel(bucket: string) {
-  const [year, month] = bucket.split("-").map(Number);
-  return new Date(year, month - 1, 1).toLocaleDateString("en-US", {
-    month: "short",
-  });
+type ChartRange = "day" | "week" | "month";
+
+const CHART_RANGES: { key: ChartRange; label: string }[] = [
+  { key: "day", label: "Day" },
+  { key: "week", label: "Week" },
+  { key: "month", label: "Month" },
+];
+
+function bucketLabel(bucket: string, range: ChartRange) {
+  if (range === "month") {
+    const [year, month] = bucket.split("-").map(Number);
+    return new Date(year, month - 1, 1).toLocaleDateString("en-US", { month: "short" });
+  }
+  return new Date(bucket).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ chartRange?: string }>;
+}) {
+  const { chartRange: rawChartRange } = await searchParams;
+  const chartRange: ChartRange =
+    rawChartRange === "day" || rawChartRange === "week" ? rawChartRange : "month";
+
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+  const chartFrom =
+    chartRange === "day"
+      ? new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+      : chartRange === "week"
+        ? new Date(now.getTime() - 12 * 7 * 24 * 60 * 60 * 1000)
+        : new Date(now.getFullYear(), now.getMonth() - 11, 1);
 
   const [studios, events, summary, timeseries, billing, googleStatus, icsFeeds, invoices] =
     await Promise.all([
@@ -34,7 +56,7 @@ export default async function DashboardPage() {
         `/earnings/summary?from=${monthStart.toISOString()}&to=${now.toISOString()}`,
       ),
       apiFetch<EarningsTimeseries>(
-        `/earnings/timeseries?from=${twelveMonthsAgo.toISOString()}&to=${now.toISOString()}&granularity=month`,
+        `/earnings/timeseries?from=${chartFrom.toISOString()}&to=${now.toISOString()}&granularity=${chartRange}`,
       ),
       apiFetch<BillingStatus>("/billing/status"),
       apiFetch<GoogleCalendarStatus>("/calendar/google/status"),
@@ -208,10 +230,25 @@ export default async function DashboardPage() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between gap-2">
             <CardTitle className="text-base font-normal text-muted-foreground">
-              Income over time, last 12 months
+              Income over time
             </CardTitle>
+            <div className="flex rounded-lg border p-0.5">
+              {CHART_RANGES.map((r) => (
+                <Link
+                  key={r.key}
+                  href={`/dashboard?chartRange=${r.key}`}
+                  className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                    chartRange === r.key
+                      ? "bg-secondary text-secondary-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {r.label}
+                </Link>
+              ))}
+            </div>
           </CardHeader>
           <CardContent>
             {timeseries.points.length === 0 ? (
@@ -239,7 +276,7 @@ export default async function DashboardPage() {
                   {timeseries.points
                     .filter((_, i) => i % 2 === 0)
                     .map((p) => (
-                      <span key={p.bucket}>{monthLabel(p.bucket)}</span>
+                      <span key={p.bucket}>{bucketLabel(p.bucket, chartRange)}</span>
                     ))}
                 </div>
               </>
