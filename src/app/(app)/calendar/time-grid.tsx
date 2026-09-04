@@ -119,39 +119,42 @@ export function TimeGrid({
   // Clicking empty grid space opens "Add class" prefilled with that time;
   // dragging an existing class onto a new spot moves it there. Pointer
   // Events (not native HTML5 drag-and-drop) so this works with touch too,
-  // not just a mouse.
+  // not just a mouse. A ghost preview follows the pointer live (snapped to
+  // the grid) so dragging actually looks and feels like dragging, rather
+  // than silently jumping only once you release.
   const [newSlot, setNewSlot] = useState<{ date: string; time: string } | null>(null);
+  const [dragPreview, setDragPreview] = useState<{
+    id: string;
+    dayKey: string;
+    top: number;
+    height: number;
+  } | null>(null);
   const dayColumnRefs = useRef(new Map<string, HTMLDivElement>());
   const dragRef = useRef<{
     id: string;
     durationMinutes: number;
     grabOffsetY: number;
+    height: number;
     moved: boolean;
   } | null>(null);
+  const eventById = new Map(allEvents.map((e) => [e.id, e]));
 
   function timeFromOffsetY(offsetY: number) {
     const rawMinutes = startHour * 60 + (offsetY / HOUR_HEIGHT) * 60;
-    const snapped = Math.max(0, Math.round(rawMinutes / 5) * 5);
-    const h = Math.floor(snapped / 60);
-    const m = snapped % 60;
+    return Math.max(0, Math.round(rawMinutes / 5) * 5);
+  }
+
+  function minutesToTime(minutes: number) {
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
     return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
   }
 
-  function handlePointerMove(e: React.PointerEvent) {
-    if (!dragRef.current) return;
-    dragRef.current.moved = true;
-    e.preventDefault();
-  }
-
-  const suppressClickRef = useRef(false);
-
-  function handlePointerUp(e: React.PointerEvent) {
+  // Returns the day column + snapped top offset (in px) the pointer is
+  // currently over, accounting for where the class was originally grabbed.
+  function resolveDropTarget(e: { clientX: number; clientY: number }) {
     const drag = dragRef.current;
-    dragRef.current = null;
-    if (!drag || !drag.moved) return;
-    suppressClickRef.current = true;
-
-    // Find which day column the pointer ended up over.
+    if (!drag) return null;
     for (const [key, el] of dayColumnRefs.current) {
       const rect = el.getBoundingClientRect();
       if (
@@ -160,15 +163,39 @@ export function TimeGrid({
         e.clientY >= rect.top &&
         e.clientY <= rect.bottom
       ) {
-        // Subtract the offset where the class was originally grabbed so its
-        // top edge (not the cursor) lands on the intended time.
-        const time = timeFromOffsetY(e.clientY - rect.top - drag.grabOffsetY);
-        const start = new Date(`${key}T${time}`);
-        const end = new Date(start.getTime() + drag.durationMinutes * 60_000);
-        void moveEvent(drag.id, start.toISOString(), end.toISOString());
-        break;
+        const snappedMinutes = timeFromOffsetY(e.clientY - rect.top - drag.grabOffsetY);
+        return { key, top: (snappedMinutes - startHour * 60) / 60 * HOUR_HEIGHT };
       }
     }
+    return null;
+  }
+
+  function handlePointerMove(e: React.PointerEvent) {
+    const drag = dragRef.current;
+    if (!drag) return;
+    drag.moved = true;
+    e.preventDefault();
+    const target = resolveDropTarget(e);
+    if (target) {
+      setDragPreview({ id: drag.id, dayKey: target.key, top: target.top, height: drag.height });
+    }
+  }
+
+  const suppressClickRef = useRef(false);
+
+  function handlePointerUp(e: React.PointerEvent) {
+    const drag = dragRef.current;
+    dragRef.current = null;
+    setDragPreview(null);
+    if (!drag || !drag.moved) return;
+    suppressClickRef.current = true;
+
+    const target = resolveDropTarget(e);
+    if (!target) return;
+    const snappedMinutes = startHour * 60 + (target.top / HOUR_HEIGHT) * 60;
+    const start = new Date(`${target.key}T${minutesToTime(Math.round(snappedMinutes))}`);
+    const end = new Date(start.getTime() + drag.durationMinutes * 60_000);
+    void moveEvent(drag.id, start.toISOString(), end.toISOString());
   }
 
   return (
@@ -222,7 +249,10 @@ export function TimeGrid({
                 onClick={(e) => {
                   if (e.target !== e.currentTarget) return;
                   const rect = e.currentTarget.getBoundingClientRect();
-                  setNewSlot({ date: dateKey(day), time: timeFromOffsetY(e.clientY - rect.top) });
+                  setNewSlot({
+                    date: dateKey(day),
+                    time: minutesToTime(timeFromOffsetY(e.clientY - rect.top)),
+                  });
                 }}
               >
                 {hours.slice(0, -1).map((hour, i) => (
@@ -233,6 +263,7 @@ export function TimeGrid({
                   />
                 ))}
                 {dayEvents.map((event) => {
+                  if (dragPreview?.id === event.id) return null;
                   const start = new Date(event.start_time);
                   const end = new Date(event.end_time);
                   const top = topFor(start);
@@ -258,6 +289,7 @@ export function TimeGrid({
                               id: event.id,
                               durationMinutes: (end.getTime() - start.getTime()) / 60_000,
                               grabOffsetY: e.clientY - rect.top,
+                              height,
                               moved: false,
                             };
                             e.currentTarget.setPointerCapture(e.pointerId);
@@ -301,6 +333,16 @@ export function TimeGrid({
                     />
                   );
                 })}
+                {dragPreview?.dayKey === key && (
+                  <div
+                    className="pointer-events-none absolute inset-x-1 z-10 overflow-hidden rounded-md border border-accent bg-accent/25 px-2 py-1 text-left text-xs shadow-lg"
+                    style={{ top: dragPreview.top, height: dragPreview.height }}
+                  >
+                    <p className="truncate font-medium text-foreground">
+                      {eventById.get(dragPreview.id)?.title}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           );
