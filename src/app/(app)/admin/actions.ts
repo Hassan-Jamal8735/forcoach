@@ -8,6 +8,7 @@ import type {
   SupportThreadSummary,
   YearlyDiscount,
 } from "@/lib/api/admin";
+import type { AdminBlogPost } from "@/lib/api/blog";
 
 export async function fetchThreads(): Promise<{
   threads?: SupportThreadSummary[];
@@ -200,5 +201,74 @@ export async function revokeAccess(userId: string): Promise<{ error?: string }> 
     };
   }
   revalidatePath("/admin/users");
+  return {};
+}
+
+export type BlogPostInput = {
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  published: boolean;
+};
+
+export async function fetchBlogPosts(): Promise<{
+  posts?: AdminBlogPost[];
+  error?: string;
+}> {
+  try {
+    const posts = await apiFetch<AdminBlogPost[]>("/admin/blog");
+    return { posts };
+  } catch (err) {
+    return {
+      error: err instanceof ApiError ? err.message : "Failed to load posts",
+    };
+  }
+}
+
+export async function createBlogPost(
+  input: BlogPostInput,
+): Promise<{ error?: string }> {
+  try {
+    await apiFetch("/admin/blog", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+  } catch (err) {
+    return {
+      error: err instanceof ApiError ? err.message : "Failed to create post",
+    };
+  }
+  revalidatePath("/admin/blog");
+  return {};
+}
+
+export async function updateBlogPost(
+  id: string,
+  input: BlogPostInput,
+): Promise<{ error?: string }> {
+  try {
+    await apiFetch(`/admin/blog/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(input),
+    });
+  } catch (err) {
+    return {
+      error: err instanceof ApiError ? err.message : "Failed to update post",
+    };
+  }
+  revalidatePath("/admin/blog");
+  return {};
+}
+
+export async function deleteBlogPost(id: string): Promise<{ error?: string }> {
+  try {
+    await apiFetch(`/admin/blog/${id}`, { method: "DELETE" });
+  } catch (err) {
+    return {
+      error: err instanceof ApiError ? err.message : "Failed to delete post",
+    };
+  }
+  revalidatePath("/admin/blog");
   return {};
 }

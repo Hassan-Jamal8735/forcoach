@@ -3,7 +3,9 @@ import Link from "next/link";
 import { MarketingNav } from "@/components/marketing/marketing-nav";
 import { MarketingFooter } from "@/components/marketing/marketing-footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getAllPosts } from "@/lib/blog/posts";
+import { fetchPublishedPosts } from "@/lib/blog/api";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Blog — FORCOACH",
@@ -17,8 +19,8 @@ const dateFmt = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
 });
 
-export default function BlogIndexPage() {
-  const posts = getAllPosts();
+export default async function BlogIndexPage() {
+  const posts = await fetchPublishedPosts();
 
   return (
     <div className="theme-public flex min-h-screen flex-col bg-background">
@@ -43,12 +45,14 @@ export default function BlogIndexPage() {
                 <Card className="transition-colors hover:border-accent/40">
                   <CardHeader>
                     <p className="text-xs text-muted-foreground">
-                      {dateFmt.format(new Date(post.date))}
+                      {dateFmt.format(
+                        new Date(post.published_at ?? post.created_at),
+                      )}
                     </p>
                     <CardTitle className="text-lg">{post.title}</CardTitle>
                   </CardHeader>
                   <CardContent className="text-sm text-muted-foreground">
-                    {post.description}
+                    {post.excerpt}
                   </CardContent>
                 </Card>
               </Link>
