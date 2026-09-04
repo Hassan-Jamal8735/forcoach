@@ -179,3 +179,32 @@
     stroke-dashoffset: 0;
   }
 }
+
+/* Themed scrollbars — otherwise the browser's default (light-grey, square)
+   scrollbar looks out of place against the app's rounded, accent-colored UI,
+   especially in dark mode where it stays light regardless of theme. */
+* {
+  scrollbar-color: var(--accent) transparent;
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--accent);
+  background-clip: content-box;
+}
