@@ -178,7 +178,7 @@ export function EventFormDialog({
       {trigger && <DialogTrigger render={trigger} />}
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{event ? "Edit event" : "Add event"}</DialogTitle>
+          <DialogTitle>{event ? "Edit class" : "Add class"}</DialogTitle>
         </DialogHeader>
         <form
           action={(formData) => {
@@ -496,7 +496,7 @@ export function EventFormDialog({
                 Cancel
               </Button>
               <Button type="submit" disabled={isPending}>
-                {isPending ? "Saving..." : event ? "Save changes" : "Add event"}
+                {isPending ? "Saving..." : event ? "Save changes" : "Add class"}
               </Button>
             </div>
           </div>

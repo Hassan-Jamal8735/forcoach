@@ -39,7 +39,7 @@ export default async function CalendarPage() {
         <div className="flex flex-wrap items-center gap-2">
           <EventFormDialog
             studios={studioOptions}
-            trigger={<Button>Add event</Button>}
+            trigger={<Button>Add class</Button>}
           />
         </div>
       </div>

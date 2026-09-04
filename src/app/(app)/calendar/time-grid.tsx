@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { dateKey } from "@/lib/date";
@@ -116,31 +116,59 @@ export function TimeGrid({
     return (minutesFromStart / 60) * HOUR_HEIGHT;
   }
 
-  // Clicking empty grid space opens "Add event" prefilled with that time;
-  // dragging an existing class onto a new spot moves it there.
+  // Clicking empty grid space opens "Add class" prefilled with that time;
+  // dragging an existing class onto a new spot moves it there. Pointer
+  // Events (not native HTML5 drag-and-drop) so this works with touch too,
+  // not just a mouse.
   const [newSlot, setNewSlot] = useState<{ date: string; time: string } | null>(null);
-  const [dragOverKey, setDragOverKey] = useState<string | null>(null);
+  const dayColumnRefs = useRef(new Map<string, HTMLDivElement>());
+  const dragRef = useRef<{
+    id: string;
+    durationMinutes: number;
+    grabOffsetY: number;
+    moved: boolean;
+  } | null>(null);
 
   function timeFromOffsetY(offsetY: number) {
     const rawMinutes = startHour * 60 + (offsetY / HOUR_HEIGHT) * 60;
-    const snapped = Math.round(rawMinutes / 15) * 15;
+    const snapped = Math.max(0, Math.round(rawMinutes / 5) * 5);
     const h = Math.floor(snapped / 60);
     const m = snapped % 60;
     return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
   }
 
-  function handleDrop(day: Date, e: React.DragEvent) {
+  function handlePointerMove(e: React.PointerEvent) {
+    if (!dragRef.current) return;
+    dragRef.current.moved = true;
     e.preventDefault();
-    setDragOverKey(null);
-    const id = e.dataTransfer.getData("text/plain");
-    const durationMinutes = Number(e.dataTransfer.getData("application/x-duration-min"));
-    if (!id || !durationMinutes) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const time = timeFromOffsetY(e.clientY - rect.top);
-    const dateStr = dateKey(day);
-    const start = new Date(`${dateStr}T${time}`);
-    const end = new Date(start.getTime() + durationMinutes * 60_000);
-    void moveEvent(id, start.toISOString(), end.toISOString());
+  }
+
+  const suppressClickRef = useRef(false);
+
+  function handlePointerUp(e: React.PointerEvent) {
+    const drag = dragRef.current;
+    dragRef.current = null;
+    if (!drag || !drag.moved) return;
+    suppressClickRef.current = true;
+
+    // Find which day column the pointer ended up over.
+    for (const [key, el] of dayColumnRefs.current) {
+      const rect = el.getBoundingClientRect();
+      if (
+        e.clientX >= rect.left &&
+        e.clientX <= rect.right &&
+        e.clientY >= rect.top &&
+        e.clientY <= rect.bottom
+      ) {
+        // Subtract the offset where the class was originally grabbed so its
+        // top edge (not the cursor) lands on the intended time.
+        const time = timeFromOffsetY(e.clientY - rect.top - drag.grabOffsetY);
+        const start = new Date(`${key}T${time}`);
+        const end = new Date(start.getTime() + drag.durationMinutes * 60_000);
+        void moveEvent(drag.id, start.toISOString(), end.toISOString());
+        break;
+      }
+    }
   }
 
   return (
@@ -185,22 +213,17 @@ export function TimeGrid({
                     })}
               </div>
               <div
-                className={cn(
-                  "relative",
-                  dragOverKey === key && "bg-accent/5",
-                )}
+                ref={(el) => {
+                  if (el) dayColumnRefs.current.set(key, el);
+                  else dayColumnRefs.current.delete(key);
+                }}
+                className="relative"
                 style={{ height: gridHeight }}
                 onClick={(e) => {
                   if (e.target !== e.currentTarget) return;
                   const rect = e.currentTarget.getBoundingClientRect();
                   setNewSlot({ date: dateKey(day), time: timeFromOffsetY(e.clientY - rect.top) });
                 }}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setDragOverKey(key);
-                }}
-                onDragLeave={() => setDragOverKey((k) => (k === key ? null : k))}
-                onDrop={(e) => handleDrop(day, e)}
               >
                 {hours.slice(0, -1).map((hour, i) => (
                   <div
@@ -229,13 +252,24 @@ export function TimeGrid({
                       trigger={
                         <button
                           type="button"
-                          draggable
-                          onDragStart={(e) => {
-                            e.dataTransfer.setData("text/plain", event.id);
-                            e.dataTransfer.setData(
-                              "application/x-duration-min",
-                              String((end.getTime() - start.getTime()) / 60_000),
-                            );
+                          onPointerDown={(e) => {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            dragRef.current = {
+                              id: event.id,
+                              durationMinutes: (end.getTime() - start.getTime()) / 60_000,
+                              grabOffsetY: e.clientY - rect.top,
+                              moved: false,
+                            };
+                            e.currentTarget.setPointerCapture(e.pointerId);
+                          }}
+                          onPointerMove={handlePointerMove}
+                          onPointerUp={handlePointerUp}
+                          onClickCapture={(e) => {
+                            if (suppressClickRef.current) {
+                              suppressClickRef.current = false;
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }
                           }}
                           className={cn(
                             "absolute cursor-grab overflow-hidden rounded-md border px-2 py-1 text-left text-xs transition-colors active:cursor-grabbing",
@@ -249,6 +283,7 @@ export function TimeGrid({
                             height,
                             left: `calc(${col * widthPct}% + 2px)`,
                             width: `calc(${widthPct}% - 4px)`,
+                            touchAction: "none",
                           }}
                         >
                           <p className="flex items-center gap-1 truncate font-medium text-foreground">
