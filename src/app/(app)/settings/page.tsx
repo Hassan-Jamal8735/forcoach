@@ -12,6 +12,7 @@ import { CsvImportDialog } from "@/app/(app)/calendar/csv-import-dialog";
 import { ImportHistoryDialog } from "@/app/(app)/calendar/import-history-dialog";
 import { ADMIN_EMAIL } from "@/lib/admin";
 import { ProfileForm } from "./profile-form";
+import { BankDetailsForm } from "./bank-details-form";
 import { ChangePasswordForm } from "./change-password-form";
 import { SubscriptionCard } from "./subscription-card";
 
@@ -26,6 +27,12 @@ export default async function SettingsPage() {
   const currency = (user?.user_metadata?.currency as string | undefined) ?? "EUR";
   const siret = (user?.user_metadata?.siret as string | undefined) ?? "";
   const iban = (user?.user_metadata?.iban as string | undefined) ?? "";
+  const bankAccountName =
+    (user?.user_metadata?.bank_account_name as string | undefined) ?? "";
+  const bankName = (user?.user_metadata?.bank_name as string | undefined) ?? "";
+  const bankAddress =
+    (user?.user_metadata?.bank_address as string | undefined) ?? "";
+  const bankPhone = (user?.user_metadata?.bank_phone as string | undefined) ?? "";
   const defaultVatRate =
     user?.user_metadata?.default_vat_rate != null
       ? String(user.user_metadata.default_vat_rate as number)
@@ -67,10 +74,27 @@ export default async function SettingsPage() {
             currency={currency}
             siret={siret}
             defaultVatRate={defaultVatRate}
-            iban={iban}
           />
         </CardContent>
       </Card>
+      {!isAdmin && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-normal text-muted-foreground">
+              Bank details
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <BankDetailsForm
+              bankAccountName={bankAccountName}
+              bankName={bankName}
+              iban={iban}
+              bankAddress={bankAddress}
+              bankPhone={bankPhone}
+            />
+          </CardContent>
+        </Card>
+      )}
       {!isAdmin && billing && (
         <Card>
           <CardHeader>

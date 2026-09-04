@@ -30,7 +30,6 @@ export function ProfileForm({
   currency,
   siret,
   defaultVatRate,
-  iban,
 }: {
   email: string;
   fullName: string;
@@ -38,7 +37,6 @@ export function ProfileForm({
   currency: string;
   siret: string;
   defaultVatRate: string;
-  iban: string;
 }) {
   const [state, formAction, isPending] = useActionState(
     updateProfile,
@@ -140,19 +138,6 @@ export function ProfileForm({
             default.
           </p>
         </div>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="iban">IBAN (optional)</Label>
-        <Input
-          id="iban"
-          name="iban"
-          type="text"
-          defaultValue={iban}
-          placeholder="e.g. FR76 1234 5678 9012 3456 7890 123"
-        />
-        <p className="text-xs text-muted-foreground">
-          Shown on your invoices so studios know where to send payment.
-        </p>
       </div>
       <Button type="submit" disabled={isPending}>
         {isPending ? "Saving..." : "Save changes"}

@@ -436,7 +436,7 @@ export default function Home() {
                 Less than the cost of covering one class
               </p>
               <h3 className="mt-2 font-heading text-2xl font-semibold">
-                Built to pay for itself with your first invoice
+                Run your coaching business for less than the price of one class
               </h3>
               <p className="mt-3 text-muted-foreground">
                 FORCOACH replaces spreadsheets, scattered calendars, and

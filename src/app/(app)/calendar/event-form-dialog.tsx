@@ -39,6 +39,7 @@ const DURATION_PRESETS = [
   { value: "15", label: "15 min" },
   { value: "30", label: "30 min" },
   { value: "45", label: "45 min" },
+  { value: "50", label: "50 min" },
   { value: "60", label: "1 h" },
   { value: "90", label: "1 h 30" },
   { value: "120", label: "2 h" },
@@ -52,8 +53,17 @@ function minutesBetween(start?: string, end?: string): number | null {
 }
 
 // Adds minutes to a "YYYY-MM-DD" + "HH:MM" pair, returning the same shape.
-function addMinutes(date: string, time: string, minutes: number) {
+// Returns null instead of "NaN:NaN" if the inputs don't form a valid date —
+// a mid-typing native time value (e.g. while the browser's time widget is
+// still being filled in) can otherwise poison the computed end fields and
+// trip the browser's own "invalid value" validation on submit.
+function addMinutes(
+  date: string,
+  time: string,
+  minutes: number,
+): { date: string; time: string } | null {
   const start = new Date(`${date}T${time}`);
+  if (Number.isNaN(start.getTime())) return null;
   const end = new Date(start.getTime() + minutes * 60_000);
   return {
     date: `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, "0")}-${String(end.getDate()).padStart(2, "0")}`,
@@ -79,7 +89,7 @@ export function EventFormDialog({
 
   const initialMinutes = minutesBetween(event?.start_time, event?.end_time);
   const initialPreset = !event
-    ? "60" // new classes default to 1h, the common case
+    ? "50" // new classes default to 50min, the common case
     : DURATION_PRESETS.some(
           (p) => p.value !== "custom" && Number(p.value) === initialMinutes,
         )
@@ -105,8 +115,10 @@ export function EventFormDialog({
     setDuration(nextDuration);
     if (nextDuration !== "custom" && date && time) {
       const computed = addMinutes(date, time, Number(nextDuration));
-      setEndDate(computed.date);
-      setEndTime(computed.time);
+      if (computed) {
+        setEndDate(computed.date);
+        setEndTime(computed.time);
+      }
     }
   }
 
@@ -168,6 +180,7 @@ export function EventFormDialog({
                 id="startTime"
                 name="startTime"
                 type="time"
+                step={60}
                 required
                 value={startTime}
                 onChange={(e) => {
@@ -214,6 +227,7 @@ export function EventFormDialog({
                 <Input
                   id="endTime"
                   type="time"
+                  step={60}
                   required
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}

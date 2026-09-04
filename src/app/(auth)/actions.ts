@@ -160,7 +160,6 @@ export async function updateProfile(
   const currency = String(formData.get("currency") ?? "EUR");
   const siret = String(formData.get("siret") ?? "").trim();
   const defaultVatRate = String(formData.get("defaultVatRate") ?? "").trim();
-  const iban = String(formData.get("iban") ?? "").trim();
 
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({
@@ -170,7 +169,6 @@ export async function updateProfile(
       currency,
       siret: siret || null,
       default_vat_rate: defaultVatRate ? Number(defaultVatRate) : null,
-      iban: iban || null,
     },
   });
 
@@ -179,4 +177,32 @@ export async function updateProfile(
   }
 
   return { success: "Profile updated." };
+}
+
+export async function updateBankDetails(
+  _prevState: AuthActionState,
+  formData: FormData,
+): Promise<AuthActionState> {
+  const bankAccountName = String(formData.get("bankAccountName") ?? "").trim();
+  const bankName = String(formData.get("bankName") ?? "").trim();
+  const iban = String(formData.get("iban") ?? "").trim();
+  const bankAddress = String(formData.get("bankAddress") ?? "").trim();
+  const bankPhone = String(formData.get("bankPhone") ?? "").trim();
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({
+    data: {
+      bank_account_name: bankAccountName || null,
+      bank_name: bankName || null,
+      iban: iban || null,
+      bank_address: bankAddress || null,
+      bank_phone: bankPhone || null,
+    },
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { success: "Bank details updated." };
 }
