@@ -272,21 +272,3 @@ export async function deleteBlogPost(id: string): Promise<{ error?: string }> {
   revalidatePath("/admin/blog");
   return {};
 }
-
-export async function uploadBlogImage(
-  filename: string,
-  contentType: string,
-  dataBase64: string,
-): Promise<{ url?: string; error?: string }> {
-  try {
-    const result = await apiFetch<{ url: string }>("/admin/blog/images", {
-      method: "POST",
-      body: JSON.stringify({ filename, contentType, dataBase64 }),
-    });
-    return { url: result.url };
-  } catch (err) {
-    return {
-      error: err instanceof ApiError ? err.message : "Failed to upload image",
-    };
-  }
-}

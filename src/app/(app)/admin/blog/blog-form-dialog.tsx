@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import type { AdminBlogPost } from "@/lib/api/blog";
-import { createBlogPost, updateBlogPost, uploadBlogImage } from "../actions";
+import { createBlogPost, updateBlogPost } from "../actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,19 +16,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      // data:<type>;base64,<data> — strip the prefix, we send contentType separately.
-      const result = reader.result as string;
-      resolve(result.slice(result.indexOf(",") + 1));
-    };
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(file);
-  });
-}
 
 function slugify(title: string): string {
   return title
@@ -59,31 +46,17 @@ export function BlogFormDialog({
   const [excerpt, setExcerpt] = useState(post?.excerpt ?? "");
   const [content, setContent] = useState(post?.content ?? "");
   const [published, setPublished] = useState(post?.published ?? false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | undefined>();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [imageUrls, setImageUrls] = useState("");
 
-  async function handleImageFiles(files: FileList | null) {
-    if (!files || files.length === 0) return;
-    setUploadError(undefined);
-    setIsUploading(true);
-    const inserted: string[] = [];
-    for (const file of Array.from(files)) {
-      const dataBase64 = await fileToBase64(file);
-      const result = await uploadBlogImage(file.name, file.type, dataBase64);
-      if (result.error) {
-        setUploadError(result.error);
-        continue;
-      }
-      if (result.url) inserted.push(`![](${result.url})`);
-    }
-    if (inserted.length > 0) {
-      setContent((prev) =>
-        prev ? `${prev}\n\n${inserted.join("\n\n")}` : inserted.join("\n\n"),
-      );
-    }
-    setIsUploading(false);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+  function insertImages() {
+    const urls = imageUrls
+      .split("\n")
+      .map((u) => u.trim())
+      .filter(Boolean);
+    if (urls.length === 0) return;
+    const inserted = urls.map((u) => `![](${u})`).join("\n\n");
+    setContent((prev) => (prev ? `${prev}\n\n${inserted}` : inserted));
+    setImageUrls("");
   }
 
   function handleSubmit() {
@@ -159,33 +132,33 @@ export function BlogFormDialog({
             />
           </div>
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="blogContent">Content *</Label>
-              <div className="flex items-center gap-2">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp,image/gif"
-                  multiple
-                  className="hidden"
-                  onChange={(e) => handleImageFiles(e.target.files)}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={isUploading}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  {isUploading ? "Uploading..." : "Add images"}
-                </Button>
-              </div>
+            <Label htmlFor="blogImageUrls">Add images (optional)</Label>
+            <div className="flex gap-2">
+              <Textarea
+                id="blogImageUrls"
+                value={imageUrls}
+                onChange={(e) => setImageUrls(e.target.value)}
+                rows={2}
+                placeholder={"One image URL per line"}
+                className="text-xs"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={insertImages}
+                disabled={!imageUrls.trim()}
+              >
+                Insert
+              </Button>
             </div>
-            {uploadError && (
-              <Alert variant="destructive">
-                <AlertDescription>{uploadError}</AlertDescription>
-              </Alert>
-            )}
+            <p className="text-xs text-muted-foreground">
+              Paste a link to an image (e.g. from a photo you&apos;ve
+              uploaded to any image host) and it&apos;s added into the
+              content below — move it wherever you like.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="blogContent">Content *</Label>
             <Textarea
               id="blogContent"
               value={content}
@@ -198,9 +171,6 @@ export function BlogFormDialog({
               Formatting: ## for a heading, **bold**, *italic*, [link
               text](https://...), and lines starting with &ldquo;- &rdquo;
               for a bulleted list. Leave a blank line between paragraphs.
-              &ldquo;Add images&rdquo; uploads and inserts them into the
-              content automatically — you can select multiple at once and
-              move the resulting lines wherever you like.
             </p>
           </div>
           <div className="flex items-center gap-2">
