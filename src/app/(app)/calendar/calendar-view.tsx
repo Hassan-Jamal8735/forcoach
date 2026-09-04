@@ -4,8 +4,6 @@ import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -23,20 +21,14 @@ import {
 } from "@/lib/date";
 import type { Event } from "@/lib/api/events";
 import type { Studio } from "@/lib/api/studios";
-import { EventRow } from "./event-row";
-import { BulkDeleteButton } from "./bulk-delete-button";
-import { BulkAssignButton } from "./bulk-assign-button";
 import { TimeGrid } from "./time-grid";
 
-const PAGE_SIZE = 20;
-
-type ViewMode = "list" | "month" | "week" | "day";
+type ViewMode = "month" | "week" | "day";
 
 const VIEWS: { value: ViewMode; label: string }[] = [
   { value: "day", label: "Day" },
   { value: "week", label: "Week" },
   { value: "month", label: "Month" },
-  { value: "list", label: "List" },
 ];
 
 export function CalendarView({
@@ -50,8 +42,6 @@ export function CalendarView({
   const [anchor, setAnchor] = useState(() => new Date());
   const [search, setSearch] = useState("");
   const [studioFilter, setStudioFilter] = useState("all");
-  const [page, setPage] = useState(1);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const studioById = new Map(studios.map((s) => [s.id, s.name]));
   const studioOptions = studios.map((s) => ({
@@ -95,56 +85,11 @@ export function CalendarView({
     return map;
   }, [sorted]);
 
-  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
-  const currentPage = Math.min(page, totalPages);
-  const paginated = sorted.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE,
-  );
-
   function navigate(step: 1 | -1) {
     if (view === "month") setAnchor((d) => addMonths(d, step));
     else if (view === "week") setAnchor((d) => addDays(d, step * 7));
     else if (view === "day") setAnchor((d) => addDays(d, step));
   }
-
-  function toggleSelect(id: string, checked: boolean) {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (checked) next.add(id);
-      else next.delete(id);
-      return next;
-    });
-  }
-
-  const allOnPageSelected =
-    paginated.length > 0 && paginated.every((e) => selectedIds.has(e.id));
-
-  function toggleSelectAllOnPage(checked: boolean) {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      for (const e of paginated) {
-        if (checked) next.add(e.id);
-        else next.delete(e.id);
-      }
-      return next;
-    });
-  }
-
-  const emptyState = (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base font-normal text-muted-foreground">
-          No events found
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="text-sm text-muted-foreground">
-        {events.length === 0
-          ? "Connect a calendar in Settings, upload a .ics or CSV file, or add a class manually to get started."
-          : "Try a different search or studio filter."}
-      </CardContent>
-    </Card>
-  );
 
   return (
     <div className="space-y-4">
@@ -167,31 +112,29 @@ export function CalendarView({
           ))}
         </div>
 
-        {view !== "list" && (
-          <div className="flex items-center gap-1">
-            <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
-              <ChevronLeft className="size-4" />
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setAnchor(new Date())}>
-              Today
-            </Button>
-            <Button variant="outline" size="icon" onClick={() => navigate(1)}>
-              <ChevronRight className="size-4" />
-            </Button>
-            <span className="ml-1 text-sm font-medium">
-              {view === "month" &&
-                anchor.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
-              {view === "week" &&
-                `Week of ${startOfWeek(anchor).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`}
-              {view === "day" &&
-                anchor.toLocaleDateString("en-US", {
-                  weekday: "long",
-                  month: "long",
-                  day: "numeric",
-                })}
-            </span>
-          </div>
-        )}
+        <div className="flex items-center gap-1">
+          <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
+            <ChevronLeft className="size-4" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setAnchor(new Date())}>
+            Today
+          </Button>
+          <Button variant="outline" size="icon" onClick={() => navigate(1)}>
+            <ChevronRight className="size-4" />
+          </Button>
+          <span className="ml-1 text-sm font-medium">
+            {view === "month" &&
+              anchor.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+            {view === "week" &&
+              `Week of ${startOfWeek(anchor).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`}
+            {view === "day" &&
+              anchor.toLocaleDateString("en-US", {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+              })}
+          </span>
+        </div>
 
         <div className="ml-auto flex flex-wrap items-center gap-2">
           <div className="relative">
@@ -199,19 +142,13 @@ export function CalendarView({
             <Input
               placeholder="Search events..."
               value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setPage(1);
-              }}
+              onChange={(e) => setSearch(e.target.value)}
               className="w-48 pl-8"
             />
           </div>
           <Select
             value={studioFilter}
-            onValueChange={(value) => {
-              setStudioFilter(value ?? "all");
-              setPage(1);
-            }}
+            onValueChange={(value) => setStudioFilter(value ?? "all")}
           >
             <SelectTrigger>
               <SelectValue>
@@ -236,89 +173,6 @@ export function CalendarView({
           </Select>
         </div>
       </div>
-
-      {view === "list" &&
-        (sorted.length === 0 ? (
-          emptyState
-        ) : (
-          <div className="space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <label className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Checkbox
-                  checked={allOnPageSelected}
-                  onCheckedChange={(checked) => toggleSelectAllOnPage(checked === true)}
-                  aria-label="Select all on this page"
-                />
-                Select all on this page
-              </label>
-              {selectedIds.size > 0 && (
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-sm text-muted-foreground">
-                    {selectedIds.size} selected
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSelectedIds(new Set())}
-                  >
-                    Clear
-                  </Button>
-                  <BulkAssignButton
-                    ids={Array.from(selectedIds)}
-                    studios={studios.map((s) => ({ id: s.id, name: s.name }))}
-                    onDone={() => setSelectedIds(new Set())}
-                  />
-                  <BulkDeleteButton
-                    ids={Array.from(selectedIds)}
-                    onDone={() => setSelectedIds(new Set())}
-                  />
-                </div>
-              )}
-            </div>
-
-            <Card>
-              <CardContent className="divide-y p-0">
-                {paginated.map((event) => (
-                  <EventRow
-                    key={event.id}
-                    event={event}
-                    studioById={studioById}
-                    studioOptions={studioOptions}
-                    selectable
-                    selected={selectedIds.has(event.id)}
-                    onToggleSelect={(checked) => toggleSelect(event.id, checked)}
-                  />
-                ))}
-              </CardContent>
-            </Card>
-
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  Page {currentPage} of {totalPages} · {sorted.length} events
-                </p>
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    disabled={currentPage <= 1}
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  >
-                    <ChevronLeft className="size-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    disabled={currentPage >= totalPages}
-                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  >
-                    <ChevronRight className="size-4" />
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
 
       {view === "day" && (
         <TimeGrid

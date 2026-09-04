@@ -197,6 +197,28 @@ export function EventFormDialog({
             </div>
             <div className="space-y-2">
               <Label htmlFor="startTime">Start time *</Label>
+              {/* Native picker on mobile (works fine, better UX there);
+                  custom dropdown on desktop — Safari desktop renders
+                  <input type="time"> as a plain text field with no picker
+                  at all, unlike Windows/mobile. */}
+              <Input
+                id="startTime"
+                type="time"
+                step={60}
+                className="sm:hidden"
+                value={startTime}
+                onChange={(e) => {
+                  if (!e.target.value) return;
+                  setStartTime(e.target.value);
+                  applyDuration(duration, startDate, e.target.value);
+                }}
+                onInput={(e) => {
+                  const value = (e.target as HTMLInputElement).value;
+                  if (!value) return;
+                  setStartTime(value);
+                  applyDuration(duration, startDate, value);
+                }}
+              />
               <Select
                 value={startTime}
                 onValueChange={(v) => {
@@ -205,7 +227,7 @@ export function EventFormDialog({
                   applyDuration(duration, startDate, v);
                 }}
               >
-                <SelectTrigger id="startTime" className="w-full">
+                <SelectTrigger id="startTimeDesktop" className="hidden w-full sm:flex">
                   <SelectValue>
                     {(value: string) =>
                       TIME_OPTIONS.find((t) => t.value === value)?.label ??
@@ -259,8 +281,24 @@ export function EventFormDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="endTime">End time *</Label>
+                <Input
+                  id="endTime"
+                  type="time"
+                  step={60}
+                  className="sm:hidden"
+                  value={endTime}
+                  onChange={(e) => {
+                    if (!e.target.value) return;
+                    setEndTime(e.target.value);
+                  }}
+                  onInput={(e) => {
+                    const value = (e.target as HTMLInputElement).value;
+                    if (!value) return;
+                    setEndTime(value);
+                  }}
+                />
                 <Select value={endTime} onValueChange={(v) => v && setEndTime(v)}>
-                  <SelectTrigger id="endTime" className="w-full">
+                  <SelectTrigger id="endTimeDesktop" className="hidden w-full sm:flex">
                     <SelectValue>
                       {(value: string) =>
                         TIME_OPTIONS.find((t) => t.value === value)?.label ??
