@@ -90,6 +90,15 @@ export default async function InvoicesPage() {
     user?.user_metadata?.default_vat_rate != null
       ? String(user.user_metadata.default_vat_rate as number)
       : "";
+  const bankDetails = {
+    bankAccountName:
+      (user?.user_metadata?.bank_account_name as string | undefined) ?? "",
+    bankName: (user?.user_metadata?.bank_name as string | undefined) ?? "",
+    iban: (user?.user_metadata?.iban as string | undefined) ?? "",
+    bankAddress:
+      (user?.user_metadata?.bank_address as string | undefined) ?? "",
+    bankPhone: (user?.user_metadata?.bank_phone as string | undefined) ?? "",
+  };
 
   const currencyCode = await getUserCurrency();
 
@@ -113,6 +122,7 @@ export default async function InvoicesPage() {
         <CreateInvoiceDialog
           studios={studios.filter((s) => s.status === "active")}
           defaultVatRate={defaultVatRate}
+          bankDetails={bankDetails}
           trigger={<Button>New invoice</Button>}
         />
       </div>

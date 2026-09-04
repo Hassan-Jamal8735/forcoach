@@ -432,10 +432,7 @@ export default function Home() {
 
           <div className="relative mx-auto mt-14 grid max-w-5xl items-center gap-10 lg:grid-cols-[1fr_1.1fr]">
             <Reveal className="order-2 lg:order-1">
-              <p className="text-sm font-medium text-accent">
-                Less than the cost of covering one class
-              </p>
-              <h3 className="mt-2 font-heading text-2xl font-semibold">
+              <h3 className="font-heading text-2xl font-semibold">
                 Run your coaching business for less than the price of one class
               </h3>
               <p className="mt-3 text-muted-foreground">

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { createEvent, updateEvent } from "./actions";
+import { createEvent, deleteEvent, updateEvent } from "./actions";
 import type { Event } from "@/lib/api/events";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +23,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 function dateInputValue(iso?: string) {
   if (!iso) return undefined;
@@ -184,6 +196,16 @@ export function EventFormDialog({
                 required
                 value={startTime}
                 onChange={(e) => {
+                  // Native time inputs fire onChange with "" for every
+                  // in-progress keystroke until all segments (hour, minute,
+                  // AM/PM) are filled. Committing that "" back as the
+                  // controlled value resets the widget's own display mid-type
+                  // — on desktop (typed segment by segment) this makes the
+                  // field nearly unusable and trips the browser's own
+                  // "Invalid value" bubble. Mobile's picker only ever emits a
+                  // complete value, which is why this only shows up on
+                  // desktop. Ignore empty intermediate values entirely.
+                  if (!e.target.value) return;
                   setStartTime(e.target.value);
                   applyDuration(duration, startDate, e.target.value);
                 }}
@@ -230,7 +252,10 @@ export function EventFormDialog({
                   step={60}
                   required
                   value={endTime}
-                  onChange={(e) => setEndTime(e.target.value)}
+                  onChange={(e) => {
+                    if (!e.target.value) return;
+                    setEndTime(e.target.value);
+                  }}
                 />
               </div>
             </div>
@@ -305,13 +330,61 @@ export function EventFormDialog({
             <Label htmlFor="notes">Notes</Label>
             <Textarea id="notes" name="notes" defaultValue={event?.notes ?? undefined} />
           </div>
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? "Saving..." : event ? "Save changes" : "Add event"}
-            </Button>
+          <div className="flex items-center justify-between gap-2">
+            {event ? (
+              <AlertDialog>
+                <AlertDialogTrigger
+                  render={
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="text-destructive"
+                    >
+                      Delete
+                    </Button>
+                  }
+                />
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete this class?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      disabled={isPending}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        startTransition(async () => {
+                          const result = await deleteEvent(event.id);
+                          if (result.error) {
+                            setError(result.error);
+                            toast(result.error, "destructive");
+                          } else {
+                            setOpen(false);
+                            toast("Class deleted");
+                          }
+                        });
+                      }}
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            ) : (
+              <span />
+            )}
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isPending}>
+                {isPending ? "Saving..." : event ? "Save changes" : "Add event"}
+              </Button>
+            </div>
           </div>
         </form>
       </DialogContent>

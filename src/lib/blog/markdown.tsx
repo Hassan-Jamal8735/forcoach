@@ -81,6 +81,22 @@ export function renderMarkdown(markdown: string): React.ReactNode {
       return;
     }
 
+    const image = /^!\[(.*?)\]\((.+?)\)$/.exec(trimmed);
+    if (image) {
+      flushParagraph(key);
+      flushList(key);
+      blocks.push(
+        // eslint-disable-next-line @next/next/no-img-element -- admin-uploaded remote URLs from Supabase Storage, not a local/optimizable asset.
+        <img
+          key={key}
+          src={image[2]}
+          alt={image[1]}
+          className="w-full rounded-md"
+        />,
+      );
+      return;
+    }
+
     if (/^-\s+/.test(trimmed)) {
       flushParagraph(key);
       listItems.push(trimmed.replace(/^-\s+/, ""));

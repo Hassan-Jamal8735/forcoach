@@ -1,9 +1,21 @@
 "use client";
 
+import { AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { dateKey } from "@/lib/date";
 import type { Event } from "@/lib/api/events";
 import { EventFormDialog } from "./event-form-dialog";
+
+function overlapsAny(event: Event, dayEvents: Event[]): boolean {
+  const start = new Date(event.start_time).getTime();
+  const end = new Date(event.end_time).getTime();
+  return dayEvents.some((other) => {
+    if (other.id === event.id) return false;
+    const otherStart = new Date(other.start_time).getTime();
+    const otherEnd = new Date(other.end_time).getTime();
+    return start < otherEnd && otherStart < end;
+  });
+}
 
 const HOUR_HEIGHT = 56; // px per hour
 const DEFAULT_START_HOUR = 8;
@@ -119,6 +131,7 @@ export function TimeGrid({
                     ((end.getTime() - start.getTime()) / 60000 / 60) *
                       HOUR_HEIGHT,
                   );
+                  const overlapping = overlapsAny(event, dayEvents);
                   return (
                     <EventFormDialog
                       key={event.id}
@@ -128,16 +141,23 @@ export function TimeGrid({
                         <button
                           type="button"
                           className={cn(
-                            "absolute inset-x-1 overflow-hidden rounded-md border border-accent/30 bg-accent/10 px-2 py-1 text-left text-xs transition-colors hover:bg-accent/20",
+                            "absolute inset-x-1 overflow-hidden rounded-md border px-2 py-1 text-left text-xs transition-colors",
+                            overlapping
+                              ? "border-destructive/50 bg-destructive/10 hover:bg-destructive/20"
+                              : "border-accent/30 bg-accent/10 hover:bg-accent/20",
                             event.status === "excluded" && "opacity-50",
                           )}
                           style={{ top, height }}
                         >
-                          <p className="truncate font-medium text-foreground">
+                          <p className="flex items-center gap-1 truncate font-medium text-foreground">
+                            {overlapping && (
+                              <AlertTriangle className="size-3 shrink-0 text-destructive" />
+                            )}
                             {event.title}
                           </p>
                           <p className="truncate text-[11px] text-muted-foreground">
                             {timeFmt.format(start)} – {timeFmt.format(end)}
+                            {overlapping && " · overlaps another class"}
                           </p>
                         </button>
                       }
