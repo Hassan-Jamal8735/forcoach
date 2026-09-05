@@ -1,6 +1,39 @@
 import Link from "next/link";
 import Image from "next/image";
 
+// lucide-react dropped brand/logo icons (trademark reasons), so these two
+// are simple inline SVGs rather than a lucide import.
+function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...props}>
+      <rect x="2" y="2" width="20" height="20" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function LinkedinIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.03-1.85-3.03-1.85 0-2.14 1.45-2.14 2.94v5.66H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.12 20.45H3.56V9h3.56v11.45Z" />
+    </svg>
+  );
+}
+
+const SOCIAL_LINKS = [
+  {
+    href: "https://www.instagram.com/forcoachapp?stkn=dnp3N2s3cGdyeWpx",
+    label: "Instagram",
+    Icon: InstagramIcon,
+  },
+  {
+    href: "https://www.linkedin.com/company/forcoach/",
+    label: "LinkedIn",
+    Icon: LinkedinIcon,
+  },
+];
+
 const PRODUCT_LINKS = [
   { href: "#features", label: "Features" },
   { href: "#how-it-works", label: "How it works" },
@@ -52,6 +85,20 @@ export function MarketingFooter() {
               The operating system for instructors teaching across multiple
               studios. Manage. Grow. Inspire.
             </p>
+            <div className="mt-4 flex items-center gap-3">
+              {SOCIAL_LINKS.map(({ href, label, Icon }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="flex size-8 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-accent/50 hover:text-accent"
+                >
+                  <Icon className="size-4" />
+                </Link>
+              ))}
+            </div>
           </div>
           <div className="flex flex-col gap-3">
             <div className="font-heading text-xs font-semibold tracking-wide text-foreground/70 uppercase">
