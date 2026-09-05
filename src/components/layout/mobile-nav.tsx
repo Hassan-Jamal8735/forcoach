@@ -10,7 +10,7 @@ export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
   const items = isAdmin ? ADMIN_NAV_ITEMS : NAV_ITEMS;
 
   return (
-    <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 flex items-center justify-around border-t border-border bg-sidebar text-sidebar-foreground py-2">
+    <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 flex items-center justify-around border-t border-border bg-sidebar text-sidebar-foreground px-1 pt-1.5 pb-[calc(0.375rem+env(safe-area-inset-bottom))]">
       {items.map((item) => {
         const isActive =
           item.href === "/admin"
@@ -22,10 +22,10 @@ export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
             key={item.href}
             href={item.href}
             className={cn(
-              "flex flex-col items-center gap-1 px-2 py-1 text-[11px] font-medium",
+              "flex min-h-11 min-w-14 flex-1 flex-col items-center justify-center gap-0.5 rounded-lg py-1.5 text-[11px] font-medium transition-colors",
               isActive
-                ? "text-sidebar-accent-foreground"
-                : "text-sidebar-foreground/60",
+                ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                : "text-sidebar-foreground/60 active:bg-sidebar-accent/40",
             )}
           >
             <Icon className="size-5" />

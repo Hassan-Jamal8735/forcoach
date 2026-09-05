@@ -39,7 +39,7 @@ export function TopBar({
       </div>
       <GlobalSearch />
       <DropdownMenu>
-        <DropdownMenuTrigger className="group flex items-center gap-1.5 rounded-full outline-none">
+        <DropdownMenuTrigger className="group flex min-h-11 items-center gap-1.5 rounded-full p-1 outline-none">
           <Avatar className="size-8">
             <AvatarFallback className="bg-accent text-accent-foreground text-xs">
               {initialsFrom(displayName)}

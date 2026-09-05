@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/card";
 import { formatCurrency, type CurrencyCode } from "@/lib/currency";
 import { getUserCurrency } from "@/lib/user-currency";
+import { FileText } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 import { CreateInvoiceDialog } from "./create-invoice-dialog";
 import { InvoiceActions } from "./invoice-actions";
 import { ExportInvoicesButton } from "./export-invoices-button";
@@ -39,7 +41,7 @@ function InvoiceCard({
   currencyCode: CurrencyCode;
 }) {
   return (
-    <Card>
+    <Card className="transition-shadow hover:shadow-md">
       <CardHeader className="flex flex-row items-start justify-between gap-2">
         <div>
           <CardTitle className="text-lg flex items-center gap-2">
@@ -141,32 +143,25 @@ export default async function InvoicesPage() {
       </div>
 
       {invoices.length === 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-normal text-muted-foreground">
-              No invoices yet
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
-            {studios.length === 0 ? (
-              <p>
-                Add a studio first, then create an invoice once you have
-                assigned classes for a billing period.{" "}
-                <Link href="/studios" className="text-accent hover:underline">
-                  Add a studio &rarr;
-                </Link>
-              </p>
-            ) : (
-              <p>
-                Create your first invoice once you have assigned classes for
-                a studio and billing period.{" "}
-                <Link href="/calendar" className="text-accent hover:underline">
-                  Go to Calendar &rarr;
-                </Link>
-              </p>
-            )}
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={FileText}
+          title="No invoices yet"
+          description={
+            studios.length === 0
+              ? "Add a studio first, then create an invoice once you have assigned classes for a billing period."
+              : "Create your first invoice once you have assigned classes for a studio and billing period."
+          }
+          action={
+            <Button
+              variant="outline"
+              render={
+                <Link href={studios.length === 0 ? "/studios" : "/calendar"} />
+              }
+            >
+              {studios.length === 0 ? "Add a studio" : "Go to Calendar"}
+            </Button>
+          }
+        />
       ) : (
         <div className="space-y-4">
           {active.map((invoice) => (

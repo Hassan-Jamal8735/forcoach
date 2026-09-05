@@ -1,3 +1,4 @@
+import { Building2 } from "lucide-react";
 import { apiFetch } from "@/lib/api/server-client";
 import type { Studio, StudioSuggestion } from "@/lib/api/studios";
 import { cn } from "@/lib/utils";
@@ -6,6 +7,7 @@ import { getUserCurrency } from "@/lib/user-currency";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import { StudioFormDialog } from "./studio-form-dialog";
 import { DeleteStudioButton } from "./delete-studio-button";
 import { CoachMark } from "@/components/onboarding/coach-mark";
@@ -77,22 +79,21 @@ export default async function StudiosPage() {
       />
 
       {sorted.length === 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-normal text-muted-foreground">
-              No studios yet
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">
-            Add your first studio to start tracking hours and earnings there.
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={Building2}
+          title="No studios yet"
+          description="Add your first studio to start tracking hours and earnings there."
+          action={<StudioFormDialog trigger={<Button>Add studio</Button>} />}
+        />
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {sorted.map((studio) => (
             <Card
               key={studio.id}
-              className={cn(studio.status === "inactive" && "opacity-60")}
+              className={cn(
+                "transition-shadow hover:shadow-md",
+                studio.status === "inactive" && "opacity-60",
+              )}
             >
               <CardHeader className="flex flex-row items-start justify-between gap-2">
                 <div>

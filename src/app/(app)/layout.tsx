@@ -26,7 +26,7 @@ export default async function AppLayout({
       <SidebarNav isAdmin={isAdmin} />
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar displayName={displayName} isAdmin={isAdmin} />
-        <main className="flex-1 px-4 py-6 pb-20 md:px-8 md:pb-6">
+        <main className="flex-1 px-4 py-6 pb-24 md:px-8 md:pb-6">
           {children}
         </main>
       </div>
