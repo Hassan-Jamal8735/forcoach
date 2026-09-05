@@ -200,10 +200,15 @@ export function EventFormDialog({
                 const unit = repeat as "daily" | "weekly" | "monthly";
                 const sDate = i === 0 ? startDate : shiftDate(startDate, unit, i);
                 const eDate = i === 0 ? endDate : shiftDate(endDate, unit, i);
+                // Resolved client-side (browser-local time) same as the
+                // hidden startTimeISO/endTimeISO fields — the server action
+                // must never reconstruct these from raw date/time strings.
+                const sISO = new Date(`${sDate}T${startTime}`).toISOString();
+                const eISO = new Date(`${eDate}T${endTime}`).toISOString();
                 const occurrence = new FormData();
                 for (const [key, value] of formData.entries()) {
-                  if (key === "startDate") occurrence.set(key, sDate);
-                  else if (key === "endDate") occurrence.set(key, eDate);
+                  if (key === "startTimeISO") occurrence.set(key, sISO);
+                  else if (key === "endTimeISO") occurrence.set(key, eISO);
                   else occurrence.set(key, value);
                 }
                 const result = await createEvent({}, occurrence);
@@ -374,8 +379,29 @@ export function EventFormDialog({
               </div>
             </div>
           )}
-          <input type="hidden" name="endDate" value={endDate} />
-          <input type="hidden" name="endTime" value={endTime} />
+          {/* Resolved to a real UTC instant here, in the browser, using the
+              coach's actual local timezone — the server action just passes
+              these through as-is rather than reparsing "YYYY-MM-DDTHH:MM"
+              itself (which would use the server container's timezone and
+              silently shift the saved time). */}
+          <input
+            type="hidden"
+            name="startTimeISO"
+            value={
+              startDate && startTime
+                ? new Date(`${startDate}T${startTime}`).toISOString()
+                : ""
+            }
+          />
+          <input
+            type="hidden"
+            name="endTimeISO"
+            value={
+              endDate && endTime
+                ? new Date(`${endDate}T${endTime}`).toISOString()
+                : ""
+            }
+          />
           <div className="space-y-2">
             <Label htmlFor="studioId">Studio</Label>
             <Select

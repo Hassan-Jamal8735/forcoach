@@ -48,10 +48,15 @@ function parseEventInput(formData: FormData): EventInput {
     return typeof raw === "string" && raw.trim() !== "" ? raw.trim() : undefined;
   };
 
-  const startDate = value("startDate");
-  const startTime = value("startTime");
-  const endDate = value("endDate");
-  const endTime = value("endTime");
+  // startTimeISO/endTimeISO are computed client-side (browser-local time,
+  // via Date.toISOString()) and sent as already-resolved UTC instants.
+  // This function runs inside a "use server" action, i.e. on the Docker
+  // container — reconstructing `new Date("YYYY-MM-DDTHH:MM")` here instead
+  // would parse the naive string using the CONTAINER's timezone (UTC),
+  // silently disagreeing with the coach's actual browser timezone and
+  // shifting every saved time by the difference between the two.
+  const startTimeISO = value("startTimeISO");
+  const endTimeISO = value("endTimeISO");
   const rawRate = value("rateOverride");
   const rawAttendance = value("attendanceCount");
   const rawStudioId = value("studioId");
@@ -60,12 +65,8 @@ function parseEventInput(formData: FormData): EventInput {
   return {
     title: value("title") ?? "",
     notes: value("notes"),
-    startTime: startDate && startTime
-      ? new Date(`${startDate}T${startTime}`).toISOString()
-      : "",
-    endTime: endDate && endTime
-      ? new Date(`${endDate}T${endTime}`).toISOString()
-      : "",
+    startTime: startTimeISO ?? "",
+    endTime: endTimeISO ?? "",
     studioId: studioId ?? null,
     status: studioId ? "assigned" : "unassigned",
     // Empty input clears the override and falls back to the studio's rate.

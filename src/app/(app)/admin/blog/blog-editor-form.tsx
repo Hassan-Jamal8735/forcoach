@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import type { AdminBlogPost } from "@/lib/api/blog";
 import { createBlogPost, updateBlogPost, uploadBlogImage } from "../actions";
 import { Button } from "@/components/ui/button";
@@ -9,19 +10,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Card, CardContent } from "@/components/ui/card";
 
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
-      // data:<type>;base64,<data> — strip the prefix, we send contentType separately.
       const result = reader.result as string;
       resolve(result.slice(result.indexOf(",") + 1));
     };
@@ -40,16 +34,8 @@ function slugify(title: string): string {
     .replace(/^-|-$/g, "");
 }
 
-export function BlogFormDialog({
-  post,
-  onSaved,
-  trigger,
-}: {
-  post?: AdminBlogPost;
-  onSaved: () => void;
-  trigger: React.ReactElement;
-}) {
-  const [open, setOpen] = useState(false);
+export function BlogEditorForm({ post }: { post?: AdminBlogPost }) {
+  const router = useRouter();
   const [error, setError] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
 
@@ -69,13 +55,17 @@ export function BlogFormDialog({
     setIsUploading(true);
     const inserted: string[] = [];
     for (const file of Array.from(files)) {
-      const dataBase64 = await fileToBase64(file);
-      const result = await uploadBlogImage(file.name, file.type, dataBase64);
-      if (result.error) {
-        setUploadError(result.error);
-        continue;
+      try {
+        const dataBase64 = await fileToBase64(file);
+        const result = await uploadBlogImage(file.name, file.type, dataBase64);
+        if (result.error) {
+          setUploadError(result.error);
+          continue;
+        }
+        if (result.url) inserted.push(`![](${result.url})`);
+      } catch {
+        setUploadError("Failed to read that image file.");
       }
-      if (result.url) inserted.push(`![](${result.url})`);
     }
     if (inserted.length > 0) {
       setContent((prev) =>
@@ -97,30 +87,19 @@ export function BlogFormDialog({
         setError(result.error);
         return;
       }
-      setOpen(false);
-      onSaved();
+      router.push("/admin/blog");
     });
   }
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(next) => {
-        setOpen(next);
-        if (next) setError(undefined);
-      }}
-    >
-      <DialogTrigger render={trigger} />
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>{post ? "Edit post" : "New post"}</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+    <div className="space-y-4">
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      <Card>
+        <CardContent className="space-y-4 pt-6">
           <div className="space-y-2">
             <Label htmlFor="blogTitle">Title *</Label>
             <Input
@@ -190,7 +169,7 @@ export function BlogFormDialog({
               id="blogContent"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              rows={14}
+              rows={20}
               className="font-mono text-xs"
               required
             />
@@ -215,7 +194,11 @@ export function BlogFormDialog({
             </Label>
           </div>
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.push("/admin/blog")}
+            >
               Cancel
             </Button>
             <Button
@@ -225,8 +208,8 @@ export function BlogFormDialog({
               {isPending ? "Saving..." : post ? "Save changes" : "Create post"}
             </Button>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

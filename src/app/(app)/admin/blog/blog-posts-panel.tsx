@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { Plus } from "lucide-react";
 import type { AdminBlogPost } from "@/lib/api/blog";
 import { deleteBlogPost, fetchBlogPosts, updateBlogPost } from "../actions";
@@ -19,7 +20,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { BlogFormDialog } from "./blog-form-dialog";
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -78,15 +78,10 @@ export function BlogPostsPanel({
       )}
 
       <div className="flex justify-end">
-        <BlogFormDialog
-          onSaved={refresh}
-          trigger={
-            <Button>
-              <Plus className="mr-1.5 size-4" />
-              New post
-            </Button>
-          }
-        />
+        <Button render={<Link href="/admin/blog/new" />}>
+          <Plus className="mr-1.5 size-4" />
+          New post
+        </Button>
       </div>
 
       <Card>
@@ -127,15 +122,13 @@ export function BlogPostsPanel({
                       >
                         {post.published ? "Unpublish" : "Publish"}
                       </Button>
-                      <BlogFormDialog
-                        post={post}
-                        onSaved={refresh}
-                        trigger={
-                          <Button variant="ghost" size="sm">
-                            Edit
-                          </Button>
-                        }
-                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        render={<Link href={`/admin/blog/${post.id}/edit`} />}
+                      >
+                        Edit
+                      </Button>
                       <AlertDialog>
                         <AlertDialogTrigger
                           render={
