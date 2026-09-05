@@ -206,11 +206,14 @@ export function TimeGrid({
       <div className="w-14 shrink-0 border-r">
         <div className="h-10 border-b" />
         <div className="relative" style={{ height: gridHeight }}>
+          {/* Aligned to i * HOUR_HEIGHT — the same formula topFor() uses to
+              place events — so the "10 AM" label lines up with where a 10:00
+              event actually starts, instead of one row below it. */}
           {hours.slice(0, -1).map((hour, i) => (
             <div
               key={hour}
               className="absolute right-2 -translate-y-1/2 text-[11px] text-muted-foreground"
-              style={{ top: i * HOUR_HEIGHT + HOUR_HEIGHT }}
+              style={{ top: i * HOUR_HEIGHT }}
             >
               {hourLabel(hour)}
             </div>
