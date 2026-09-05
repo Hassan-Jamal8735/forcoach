@@ -150,6 +150,71 @@ export default async function AdminOverviewPage() {
         </Card>
       </div>
 
+      <div className="grid gap-4 lg:grid-cols-[1fr_1fr_1fr]">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-normal text-muted-foreground">
+              Active vs inactive
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-semibold">
+              {overview.activeCoaches30d}
+              <span className="text-sm font-normal text-muted-foreground">
+                {" "}
+                / {overview.totalUsers} logged a class in the last 30 days
+              </span>
+            </p>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-accent"
+                style={{
+                  width: `${overview.totalUsers > 0 ? (overview.activeCoaches30d / overview.totalUsers) * 100 : 0}%`,
+                }}
+              />
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {overview.inactiveCoaches} inactive
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-normal text-muted-foreground">
+              Subscriptions by status
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {overview.subscriptionBreakdown.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No subscriptions yet.</p>
+            ) : (
+              overview.subscriptionBreakdown.map((s) => (
+                <div key={s.status} className="flex items-center justify-between text-sm">
+                  <span className="capitalize text-muted-foreground">{s.status}</span>
+                  <span className="font-medium">{s.count}</span>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-normal text-muted-foreground">
+              Churn risk
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-semibold">{overview.atRiskCount}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Paying coaches with no logged classes in 30 days — the clearest
+              sign they might cancel.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
       <div className="flex gap-3 text-sm">
         <Link href="/admin/users" className="text-accent hover:underline">
           View all coaches &rarr;

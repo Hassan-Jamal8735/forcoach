@@ -15,6 +15,7 @@ import { formatCurrency, type CurrencyCode } from "@/lib/currency";
 import { getUserCurrency } from "@/lib/user-currency";
 import { CreateInvoiceDialog } from "./create-invoice-dialog";
 import { InvoiceActions } from "./invoice-actions";
+import { ExportInvoicesButton } from "./export-invoices-button";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-GB", {
@@ -110,6 +111,15 @@ export default async function InvoicesPage() {
   const active = invoices.filter((inv) => inv.status !== "archived");
   const archived = invoices.filter((inv) => inv.status === "archived");
 
+  const currentYear = new Date().getFullYear();
+  const invoiceYears = new Set(
+    invoices
+      .filter((inv) => inv.status !== "draft")
+      .map((inv) => new Date(inv.issue_date ?? inv.created_at).getFullYear()),
+  );
+  invoiceYears.add(currentYear);
+  const years = Array.from(invoiceYears).sort((a, b) => b - a);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -119,12 +129,15 @@ export default async function InvoicesPage() {
             Generate and review invoices per studio and billing period.
           </p>
         </div>
-        <CreateInvoiceDialog
-          studios={studios.filter((s) => s.status === "active")}
-          defaultVatRate={defaultVatRate}
-          bankDetails={bankDetails}
-          trigger={<Button>New invoice</Button>}
-        />
+        <div className="flex flex-wrap items-center gap-2">
+          <ExportInvoicesButton years={years} />
+          <CreateInvoiceDialog
+            studios={studios.filter((s) => s.status === "active")}
+            defaultVatRate={defaultVatRate}
+            bankDetails={bankDetails}
+            trigger={<Button>New invoice</Button>}
+          />
+        </div>
       </div>
 
       {invoices.length === 0 ? (

@@ -8,6 +8,10 @@ export type AdminOverview = {
   unreadSupportCount: number;
   activeSubscriptions: number;
   signupTrend: { date: string; count: number }[];
+  subscriptionBreakdown: { status: string; count: number }[];
+  activeCoaches30d: number;
+  inactiveCoaches: number;
+  atRiskCount: number;
 };
 
 export type AdminUser = {
