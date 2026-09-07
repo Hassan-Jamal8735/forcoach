@@ -122,7 +122,10 @@ export function EventFormDialog({
   const setOpen = controlledOnOpenChange ?? setInternalOpen;
   const [error, setError] = useState<string | undefined>();
   const [repeat, setRepeat] = useState<(typeof REPEAT_OPTIONS)[number]["value"]>("none");
-  const [repeatCount, setRepeatCount] = useState("4");
+  // Fixed rather than user-editable — one sensible span per recurrence
+  // (a quarter of daily/weekly classes, a year of monthly ones) covers the
+  // common case, and any single occurrence can still be deleted afterward.
+  const repeatCount = "12";
   const [isPending, startTransition] = useTransition();
   const [studioId, setStudioId] = useState(event?.studio_id ?? "none");
   const selectedStudio = studios.find((s) => s.id === studioId);
@@ -308,39 +311,30 @@ export function EventFormDialog({
             </Select>
           </div>
           {!event && (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="repeat">Repeat</Label>
-                <Select value={repeat} onValueChange={(v) => setRepeat((v as typeof repeat) ?? "none")}>
-                  <SelectTrigger id="repeat" className="w-full">
-                    <SelectValue>
-                      {(value: string) =>
-                        REPEAT_OPTIONS.find((r) => r.value === value)?.label ??
-                        "Does not repeat"
-                      }
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {REPEAT_OPTIONS.map((r) => (
-                      <SelectItem key={r.value} value={r.value}>
-                        {r.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="repeat">Repeat</Label>
+              <Select value={repeat} onValueChange={(v) => setRepeat((v as typeof repeat) ?? "none")}>
+                <SelectTrigger id="repeat" className="w-full">
+                  <SelectValue>
+                    {(value: string) =>
+                      REPEAT_OPTIONS.find((r) => r.value === value)?.label ??
+                      "Does not repeat"
+                    }
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {REPEAT_OPTIONS.map((r) => (
+                    <SelectItem key={r.value} value={r.value}>
+                      {r.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {repeat !== "none" && (
-                <div className="space-y-2">
-                  <Label htmlFor="repeatCount"># of classes</Label>
-                  <Input
-                    id="repeatCount"
-                    type="number"
-                    min="1"
-                    max="52"
-                    value={repeatCount}
-                    onChange={(e) => setRepeatCount(e.target.value)}
-                  />
-                </div>
+                <p className="text-xs text-muted-foreground">
+                  Creates {repeatCount} classes — you can delete any of them
+                  individually afterward.
+                </p>
               )}
             </div>
           )}
