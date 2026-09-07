@@ -38,7 +38,6 @@ import { StudiosMock } from "@/components/marketing/studios-mock";
 import { Reveal } from "@/components/marketing/reveal";
 import { PricingCard } from "@/components/marketing/pricing-card";
 import { HeroBackground } from "@/components/marketing/hero-background";
-import { YoutubeEmbed } from "@/components/ui/youtube-embed";
 
 const FEATURES = [
   {
@@ -359,9 +358,6 @@ export default function Home() {
               ))}
             </div>
           </div>
-          <Reveal delay={200} className="mx-auto mt-16 max-w-3xl">
-            <YoutubeEmbed videoId="sdp4G0n2giY" title="FORCOACH demo" />
-          </Reveal>
         </section>
 
         {/* Earnings detail row */}
