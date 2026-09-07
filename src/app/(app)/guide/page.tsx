@@ -7,6 +7,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { YoutubeEmbed } from "@/components/ui/youtube-embed";
 
 type GuideSection = {
   id: string;
@@ -500,6 +501,22 @@ export default function GuidePage() {
           How to set FORCOACH up and get the most out of it.
         </p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Watch a walkthrough</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            A quick tour of the whole app, start to finish.
+          </p>
+        </CardHeader>
+        <CardContent>
+          <YoutubeEmbed
+            videoId="sdp4G0n2giY"
+            title="FORCOACH walkthrough"
+            className="max-w-2xl"
+          />
+        </CardContent>
+      </Card>
 
       {GROUPS.map((group) => (
         <Card key={group.id}>
