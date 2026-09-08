@@ -28,7 +28,13 @@ import { createIcsFeed } from "./actions";
 type Platform = {
   key: string;
   label: string;
-  logo: string;
+  // Full lockup (icon + wordmark) — shown alone, without a separate text
+  // label, since the logo already reads the platform name. Only set when
+  // we have a real, verified-good asset; otherwise fall back to a colored
+  // initials badge + text label.
+  logo?: string;
+  initials?: string;
+  color?: string;
   tagline: string;
   instructions: React.ReactNode;
 };
@@ -84,7 +90,8 @@ const PLATFORMS: Platform[] = [
   {
     key: "bsport",
     label: "Bsport",
-    logo: "/brand/platforms/bsport.svg",
+    initials: "B",
+    color: "bg-[#0f766e]",
     tagline: "Premium studios · France & Europe",
     instructions: (
       <ol className="list-decimal space-y-2 pl-5">
@@ -212,23 +219,34 @@ export function PlatformConnectCards({
       {PLATFORMS.map((platform) => (
         <Card key={platform.key}>
           <CardContent className="space-y-3 pt-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-14 shrink-0 items-center justify-center rounded-lg border border-border bg-white p-1.5">
+            {platform.logo ? (
+              <div>
                 <Image
                   src={platform.logo}
                   alt={platform.label}
-                  width={80}
-                  height={28}
-                  className="h-full w-full object-contain"
+                  width={140}
+                  height={72}
+                  className="h-9 w-auto object-contain object-left"
                 />
-              </div>
-              <div>
-                <p className="font-medium">{platform.label}</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="mt-1.5 text-xs text-muted-foreground">
                   {platform.tagline}
                 </p>
               </div>
-            </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <div
+                  className={`flex size-9 shrink-0 items-center justify-center rounded-lg text-sm font-semibold text-white ${platform.color}`}
+                >
+                  {platform.initials}
+                </div>
+                <div>
+                  <p className="font-medium">{platform.label}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {platform.tagline}
+                  </p>
+                </div>
+              </div>
+            )}
             <ConnectPlatformDialog platform={platform} studios={studios} />
           </CardContent>
         </Card>
