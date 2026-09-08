@@ -392,6 +392,7 @@ export async function createIcsFeed(
       body: JSON.stringify({ url, name, defaultStudioId }),
     });
     revalidatePath("/calendar");
+    revalidatePath("/settings");
     return { result };
   } catch (err) {
     return {

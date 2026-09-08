@@ -7,6 +7,7 @@ import type { IcsFeed } from "@/lib/api/ics-feeds";
 import type { BillingStatus } from "@/lib/api/billing";
 import { GoogleCalendarCard } from "@/app/(app)/calendar/google-calendar-card";
 import { IcsFeedsCard } from "@/app/(app)/calendar/ics-feeds-card";
+import { PlatformConnectCards } from "@/app/(app)/calendar/platform-connect-cards";
 import { IcsUploadDialog } from "@/app/(app)/calendar/ics-upload-dialog";
 import { CsvImportDialog } from "@/app/(app)/calendar/csv-import-dialog";
 import { ImportHistoryDialog } from "@/app/(app)/calendar/import-history-dialog";
@@ -111,12 +112,23 @@ export default async function SettingsPage() {
         <>
           <div className="space-y-2">
             <div>
+              <h2 className="text-base font-medium">Connect your platforms</h2>
+              <p className="text-sm text-muted-foreground">
+                Connect once and your classes sync in automatically — no
+                password ever needed, just a schedule link from each
+                platform.
+              </p>
+            </div>
+            <PlatformConnectCards studios={studioOptions} />
+          </div>
+          <div className="space-y-2">
+            <div>
               <h2 className="text-base font-medium">
-                Where your classes come from
+                Other ways to bring in your schedule
               </h2>
               <p className="text-sm text-muted-foreground">
-                Connect a calendar once and your classes sync in
-                automatically. You only need to set this up once.
+                Google Calendar, Apple Calendar, or any other calendar feed
+                link.
               </p>
             </div>
             <div className="grid gap-4 lg:grid-cols-2">
