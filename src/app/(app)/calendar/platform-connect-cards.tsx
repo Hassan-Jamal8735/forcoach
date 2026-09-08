@@ -223,13 +223,13 @@ export function PlatformConnectCards({
                 <Image
                   src={platform.logo}
                   alt={platform.label}
-                  width={36}
-                  height={36}
-                  className="size-9 shrink-0 rounded-lg object-cover"
+                  width={56}
+                  height={56}
+                  className="size-14 shrink-0 rounded-lg object-cover"
                 />
               ) : (
                 <div
-                  className={`flex size-9 shrink-0 items-center justify-center rounded-lg text-sm font-semibold text-white ${platform.color}`}
+                  className={`flex size-14 shrink-0 items-center justify-center rounded-lg text-sm font-semibold text-white ${platform.color}`}
                 >
                   {platform.initials}
                 </div>
@@ -248,7 +248,7 @@ export function PlatformConnectCards({
       <Card className="opacity-60">
         <CardContent className="space-y-3 pt-6">
           <div className="flex items-center gap-3">
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#7c3aed] text-sm font-semibold text-white">
+            <div className="flex size-14 shrink-0 items-center justify-center rounded-lg bg-[#7c3aed] text-sm font-semibold text-white">
               M
             </div>
             <div>
