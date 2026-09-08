@@ -44,12 +44,23 @@ export async function register(
     return { error: "Password must be at least 8 characters." };
   }
 
+  const headerList = await headers();
+  const origin =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    `${headerList.get("x-forwarded-proto") ?? "http"}://${headerList.get("host")}`;
+
   const supabase = await createClient();
   const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: { full_name: fullName, timezone, currency: "EUR" },
+      // Without this, Supabase falls back to its default Site URL for the
+      // confirmation link — which just lands on the bare homepage with no
+      // session, silently, since the code never gets exchanged. Routing
+      // through /auth/callback exchanges it properly and logs the coach in
+      // automatically, landing them straight on the dashboard.
+      emailRedirectTo: `${origin}/auth/callback?redirectTo=%2Fdashboard`,
     },
   });
 
@@ -67,8 +78,19 @@ export async function register(
 export async function resendConfirmationEmail(
   email: string,
 ): Promise<{ error?: string; success?: string }> {
+  const headerList = await headers();
+  const origin =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    `${headerList.get("x-forwarded-proto") ?? "http"}://${headerList.get("host")}`;
+
   const supabase = await createClient();
-  const { error } = await supabase.auth.resend({ type: "signup", email });
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email,
+    options: {
+      emailRedirectTo: `${origin}/auth/callback?redirectTo=%2Fdashboard`,
+    },
+  });
 
   if (error) {
     return { error: error.message };
