@@ -43,7 +43,7 @@ const PLATFORMS: Platform[] = [
   {
     key: "mindbody",
     label: "Mindbody",
-    logo: "/brand/platforms/mindbody.svg",
+    logo: "/brand/platforms/mindbody.png",
     tagline: "International fitness platform",
     instructions: (
       <ol className="list-decimal space-y-2 pl-5">
@@ -90,8 +90,7 @@ const PLATFORMS: Platform[] = [
   {
     key: "bsport",
     label: "Bsport",
-    initials: "B",
-    color: "bg-[#0f766e]",
+    logo: "/brand/platforms/bsport.png",
     tagline: "Premium studios · France & Europe",
     instructions: (
       <ol className="list-decimal space-y-2 pl-5">
@@ -219,34 +218,29 @@ export function PlatformConnectCards({
       {PLATFORMS.map((platform) => (
         <Card key={platform.key}>
           <CardContent className="space-y-3 pt-6">
-            {platform.logo ? (
-              <div>
+            <div className="flex items-center gap-3">
+              {platform.logo ? (
                 <Image
                   src={platform.logo}
                   alt={platform.label}
-                  width={140}
-                  height={72}
-                  className="h-9 w-auto object-contain object-left"
+                  width={36}
+                  height={36}
+                  className="size-9 shrink-0 rounded-lg object-cover"
                 />
-                <p className="mt-1.5 text-xs text-muted-foreground">
-                  {platform.tagline}
-                </p>
-              </div>
-            ) : (
-              <div className="flex items-center gap-3">
+              ) : (
                 <div
                   className={`flex size-9 shrink-0 items-center justify-center rounded-lg text-sm font-semibold text-white ${platform.color}`}
                 >
                   {platform.initials}
                 </div>
-                <div>
-                  <p className="font-medium">{platform.label}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {platform.tagline}
-                  </p>
-                </div>
+              )}
+              <div>
+                <p className="font-medium">{platform.label}</p>
+                <p className="text-xs text-muted-foreground">
+                  {platform.tagline}
+                </p>
               </div>
-            )}
+            </div>
             <ConnectPlatformDialog platform={platform} studios={studios} />
           </CardContent>
         </Card>
