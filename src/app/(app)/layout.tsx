@@ -22,16 +22,24 @@ export default async function AppLayout({
   const isAdmin = user?.email === ADMIN_EMAIL;
 
   return (
-    <div className="flex min-h-screen">
-      <SidebarNav isAdmin={isAdmin} />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar displayName={displayName} isAdmin={isAdmin} />
-        <main className="flex-1 px-4 py-6 pb-24 md:px-8 md:pb-6">
+    <div className="flex min-h-screen print:block">
+      <div className="print:hidden">
+        <SidebarNav isAdmin={isAdmin} />
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col print:block">
+        <div className="print:hidden">
+          <TopBar displayName={displayName} isAdmin={isAdmin} />
+        </div>
+        <main className="flex-1 px-4 py-6 pb-24 md:px-8 md:pb-6 print:p-0">
           {children}
         </main>
       </div>
-      <MobileNav isAdmin={isAdmin} />
-      <Toaster />
+      <div className="print:hidden">
+        <MobileNav isAdmin={isAdmin} />
+      </div>
+      <div className="print:hidden">
+        <Toaster />
+      </div>
     </div>
   );
 }

@@ -39,12 +39,20 @@ export default async function InvoiceDetailPage({
   return (
     <div className="space-y-6">
       <div>
-        <Link
-          href="/invoices"
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          &larr; Back to invoices
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link
+            href="/invoices"
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
+            &larr; Back to invoices
+          </Link>
+          <Link
+            href={`/invoices/${invoice.id}/print`}
+            className="text-sm text-accent hover:underline"
+          >
+            View printable version &rarr;
+          </Link>
+        </div>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <h1 className="text-2xl font-semibold">{invoice.studio_name}</h1>
           <Badge variant={isDraft ? "outline" : "default"}>

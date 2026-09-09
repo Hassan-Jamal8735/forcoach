@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { deleteStudio } from "./actions";
+import { toast, undoableAction } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -53,10 +54,15 @@ export function DeleteStudioButton({
             disabled={isPending}
             onClick={(e) => {
               e.preventDefault();
-              startTransition(async () => {
-                const result = await deleteStudio(id);
-                if (result.error) setError(result.error);
-                else setOpen(false);
+              setOpen(false);
+              undoableAction(`${name} deleted`, () => {
+                startTransition(async () => {
+                  const result = await deleteStudio(id);
+                  if (result.error) {
+                    setError(result.error);
+                    toast(result.error, "destructive");
+                  }
+                });
               });
             }}
           >

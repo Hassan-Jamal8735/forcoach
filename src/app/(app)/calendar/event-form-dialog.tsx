@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { createEvent, deleteEvent, updateEvent } from "./actions";
 import type { Event } from "@/lib/api/events";
-import { toast } from "@/lib/toast";
+import { toast, undoableAction } from "@/lib/toast";
 import { TIME_OPTIONS } from "@/lib/time-options";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -491,15 +491,15 @@ export function EventFormDialog({
                       disabled={isPending}
                       onClick={(e) => {
                         e.preventDefault();
-                        startTransition(async () => {
-                          const result = await deleteEvent(event.id);
-                          if (result.error) {
-                            setError(result.error);
-                            toast(result.error, "destructive");
-                          } else {
-                            setOpen(false);
-                            toast("Class deleted");
-                          }
+                        setOpen(false);
+                        undoableAction("Class deleted", () => {
+                          startTransition(async () => {
+                            const result = await deleteEvent(event.id);
+                            if (result.error) {
+                              setError(result.error);
+                              toast(result.error, "destructive");
+                            }
+                          });
                         });
                       }}
                     >

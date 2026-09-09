@@ -32,7 +32,19 @@ export function Toaster() {
               : "border-border bg-popover text-popover-foreground",
           )}
         >
-          <span>{t.message}</span>
+          <span className="flex-1">{t.message}</span>
+          {t.action && (
+            <button
+              type="button"
+              onClick={() => {
+                t.action!.onClick();
+                dismissToast(t.id);
+              }}
+              className="shrink-0 rounded font-medium underline underline-offset-2 hover:no-underline"
+            >
+              {t.action.label}
+            </button>
+          )}
           <button
             type="button"
             aria-label="Dismiss"

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { generateInvoice, archiveInvoice, deleteInvoice } from "./actions";
-import { toast } from "@/lib/toast";
+import { toast, undoableAction } from "@/lib/toast";
 import type { Invoice } from "@/lib/api/invoices";
 import { Button } from "@/components/ui/button";
 import {
@@ -141,15 +141,15 @@ export function InvoiceActions({ invoice }: { invoice: Invoice }) {
                   disabled={isPending}
                   onClick={(e) => {
                     e.preventDefault();
-                    startTransition(async () => {
-                      const result = await deleteInvoice(invoice.id);
-                      if (result.error) {
-                        setError(result.error);
-                        toast(result.error, "destructive");
-                      } else {
-                        setDeleteOpen(false);
-                        toast("Draft deleted");
-                      }
+                    setDeleteOpen(false);
+                    undoableAction("Draft deleted", () => {
+                      startTransition(async () => {
+                        const result = await deleteInvoice(invoice.id);
+                        if (result.error) {
+                          setError(result.error);
+                          toast(result.error, "destructive");
+                        }
+                      });
                     });
                   }}
                 >
