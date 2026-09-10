@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs/config";
 
 const nextConfig: NextConfig = {
   // Emits a self-contained server bundle in .next/standalone so the Docker
@@ -6,4 +7,9 @@ const nextConfig: NextConfig = {
   output: "standalone",
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  silent: true,
+  sourcemaps: {
+    disable: true,
+  },
+});
