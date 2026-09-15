@@ -15,6 +15,7 @@ import {
   MessageCircle,
   CreditCard,
   ShieldCheck,
+  Quote,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -128,6 +129,32 @@ const AUDIENCE = [
     tag: "Yoga",
     icon: Wind,
     description: "Vinyasa, hatha, or hot yoga, every class, every location.",
+  },
+];
+
+const TESTIMONIALS = [
+  {
+    quote:
+      "FORCOACH makes it so much easier to keep track of everything in one place. Simple, practical and really useful day to day.",
+    name: "Sofia M.",
+    role: "Pilates Instructor",
+  },
+  {
+    quote:
+      "Finally something actually made for instructors! It's so easy to use and makes the admin side of coaching so much simpler.",
+    name: "Chloe R.",
+    role: "Lagree Instructor",
+  },
+  {
+    quote: "I love it! Super useful and I'll definitely recommend it to other coaches.",
+    name: "James T.",
+    role: "Hot Pilates Instructor",
+  },
+  {
+    quote:
+      "The platform is really clear and user-friendly. It's perfect for independent coaches who want to keep everything organized without complicated software.",
+    name: "Maya L.",
+    role: "Yoga & Pilates Coach",
   },
 ];
 
@@ -397,6 +424,51 @@ export default function Home() {
                     <p className="mt-1 text-sm text-muted-foreground">
                       {item.description}
                     </p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+
+        {/* Testimonials */}
+        <section className="border-y border-border bg-secondary/40 px-4 py-20 sm:px-6">
+          <Reveal className="mx-auto max-w-2xl text-center">
+            <h2 className="font-heading text-3xl font-semibold">
+              Coaches are already using it
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              Real feedback from instructors managing their coaching business
+              with FORCOACH.
+            </p>
+          </Reveal>
+          <div className="mx-auto mt-12 grid max-w-5xl gap-6 sm:grid-cols-2">
+            {TESTIMONIALS.map((item, i) => (
+              <Reveal key={item.name} delay={i * 80}>
+                <div
+                  className={`flex h-full flex-col justify-between rounded-2xl p-6 shadow-sm transition-shadow duration-300 hover:shadow-md ${
+                    i % 2 === 0
+                      ? "bg-accent/15"
+                      : "border border-border bg-background"
+                  }`}
+                >
+                  <Quote className="size-7 shrink-0 fill-current text-foreground/80" />
+                  <p className="mt-4 font-heading text-lg leading-snug text-balance">
+                    &ldquo;{item.quote}&rdquo;
+                  </p>
+                  <div className="mt-6 flex items-center gap-3">
+                    <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent/20 text-sm font-semibold text-accent">
+                      {item.name
+                        .split(" ")
+                        .map((part) => part[0])
+                        .join("")}
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold">{item.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {item.role}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </Reveal>
