@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   CalendarDays,
   Clock,
@@ -16,6 +17,7 @@ import {
   CreditCard,
   ShieldCheck,
   Quote,
+  Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -138,23 +140,27 @@ const TESTIMONIALS = [
       "FORCOACH makes it so much easier to keep track of everything in one place. Simple, practical and really useful day to day.",
     name: "Sofia M.",
     role: "Pilates Instructor",
+    photo: "/testimonials/sofia.png",
   },
   {
     quote:
       "Finally something actually made for instructors! It's so easy to use and makes the admin side of coaching so much simpler.",
     name: "Chloe R.",
     role: "Lagree Instructor",
+    photo: "/testimonials/chloe.png",
   },
   {
     quote: "I love it! Super useful and I'll definitely recommend it to other coaches.",
     name: "James T.",
     role: "Hot Pilates Instructor",
+    photo: "/testimonials/james.png",
   },
   {
     quote:
       "The platform is really clear and user-friendly. It's perfect for independent coaches who want to keep everything organized without complicated software.",
     name: "Maya L.",
     role: "Yoga & Pilates Coach",
+    photo: "/testimonials/maya.png",
   },
 ];
 
@@ -446,23 +452,34 @@ export default function Home() {
             {TESTIMONIALS.map((item, i) => (
               <Reveal key={item.name} delay={i * 80}>
                 <div
-                  className={`flex h-full flex-col justify-between rounded-2xl p-6 shadow-sm transition-shadow duration-300 hover:shadow-md ${
+                  className={`group flex h-full flex-col justify-between rounded-2xl p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
                     i % 2 === 0
                       ? "bg-accent/15"
                       : "border border-border bg-background"
                   }`}
                 >
-                  <Quote className="size-7 shrink-0 fill-current text-foreground/80" />
+                  <div className="flex items-start justify-between">
+                    <Quote className="size-7 shrink-0 fill-current text-foreground/80" />
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: 5 }).map((_, star) => (
+                        <Star
+                          key={star}
+                          className="size-3.5 fill-amber-400 text-amber-400"
+                        />
+                      ))}
+                    </div>
+                  </div>
                   <p className="mt-4 font-heading text-lg leading-snug text-balance">
                     &ldquo;{item.quote}&rdquo;
                   </p>
                   <div className="mt-6 flex items-center gap-3">
-                    <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent/20 text-sm font-semibold text-accent">
-                      {item.name
-                        .split(" ")
-                        .map((part) => part[0])
-                        .join("")}
-                    </div>
+                    <Image
+                      src={item.photo}
+                      alt={item.name}
+                      width={48}
+                      height={48}
+                      className="size-12 shrink-0 rounded-full object-cover ring-2 ring-background shadow-sm transition-transform duration-300 group-hover:scale-105"
+                    />
                     <div>
                       <div className="text-sm font-semibold">{item.name}</div>
                       <div className="text-xs text-muted-foreground">
