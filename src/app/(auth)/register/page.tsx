@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
-import { register, resendConfirmationEmail, type AuthActionState } from "../actions";
+import { register, resendConfirmationEmail, verifySignupCode, type AuthActionState } from "../actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,18 @@ function ConfirmationScreen({ email }: { email: string }) {
   const [changing, setChanging] = useState(false);
   const [resendMessage, setResendMessage] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
+  const [code, setCode] = useState("");
+  const [codeError, setCodeError] = useState<string | undefined>();
+  const [isVerifying, startVerify] = useTransition();
+
+  function handleVerify(e: React.FormEvent) {
+    e.preventDefault();
+    setCodeError(undefined);
+    startVerify(async () => {
+      const result = await verifySignupCode(email, code);
+      if (result?.error) setCodeError(result.error);
+    });
+  }
 
   function handleResend() {
     setResendMessage(undefined);
@@ -43,6 +55,29 @@ function ConfirmationScreen({ email }: { email: string }) {
           Please check your spam folder if you don&apos;t see it.
         </AlertDescription>
       </Alert>
+      <form onSubmit={handleVerify} className="space-y-2">
+        <Label htmlFor="code">Or enter the 6-digit code from the email</Label>
+        <div className="flex gap-2">
+          <Input
+            id="code"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={6}
+            placeholder="123456"
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+            className="text-center text-lg tracking-[0.4em]"
+          />
+          <Button type="submit" disabled={isVerifying || code.length !== 6}>
+            {isVerifying ? "Verifying..." : "Confirm"}
+          </Button>
+        </div>
+        {codeError && (
+          <Alert variant="destructive">
+            <AlertDescription>{codeError}</AlertDescription>
+          </Alert>
+        )}
+      </form>
       {resendMessage && (
         <Alert>
           <AlertDescription>{resendMessage}</AlertDescription>

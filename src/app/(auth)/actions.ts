@@ -98,6 +98,24 @@ export async function resendConfirmationEmail(
   return { success: "Confirmation email sent again." };
 }
 
+// Alternative to clicking the email link: the same confirmation email also
+// carries a 6-digit code. Verifying it here signs the coach in directly.
+export async function verifySignupCode(
+  email: string,
+  code: string,
+): Promise<{ error?: string }> {
+  const token = code.replace(/\s/g, "");
+  if (!/^\d{6}$/.test(token)) {
+    return { error: "Enter the 6-digit code from the email." };
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.auth.verifyOtp({ email, token, type: "signup" });
+  if (error) {
+    return { error: "That code is invalid or has expired. Try again or resend the email." };
+  }
+  redirect("/dashboard");
+}
+
 export async function logout() {
   const supabase = await createClient();
   await supabase.auth.signOut();
