@@ -20,6 +20,7 @@ const ALWAYS_ACCESSIBLE_PATHS = [
   "/reset-password",
   "/blog",
   "/mobile-return",
+  "/delete-account",
 ];
 
 export async function updateSession(request: NextRequest) {
