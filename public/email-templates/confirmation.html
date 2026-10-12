@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<body style="margin:0;padding:0;background:#f7f6f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1a1a1a;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f7f6f4;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border-radius:16px;padding:32px;">
+        <tr><td style="font-size:18px;font-weight:800;letter-spacing:4px;padding-bottom:24px;">FORCOACH</td></tr>
+        <tr><td style="font-size:22px;font-weight:700;padding-bottom:8px;">Confirm your email</td></tr>
+        <tr><td style="font-size:15px;color:#6b6b6b;padding-bottom:20px;">Enter this code in the app or on the website to confirm your account:</td></tr>
+        <tr><td align="center" style="padding-bottom:24px;">
+          <div style="display:inline-block;background:#f1edfd;border-radius:12px;padding:16px 28px;font-size:34px;font-weight:800;letter-spacing:10px;color:#1a1a1a;">{{ .Token }}</div>
+        </td></tr>
+        <tr><td style="font-size:15px;color:#6b6b6b;padding-bottom:16px;">Or confirm with one tap:</td></tr>
+        <tr><td align="center" style="padding-bottom:24px;">
+          <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#1a1a1a;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:14px 28px;border-radius:12px;">Confirm my email</a>
+        </td></tr>
+        <tr><td style="font-size:13px;color:#9a9a9a;">If you didn't create a FORCOACH account, you can ignore this email.</td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>

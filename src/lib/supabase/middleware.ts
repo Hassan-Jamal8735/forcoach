@@ -22,6 +22,7 @@ const ALWAYS_ACCESSIBLE_PATHS = [
   "/mobile-return",
   "/delete-account",
   "/mobile-captcha",
+  "/email-templates",
 ];
 
 export async function updateSession(request: NextRequest) {
