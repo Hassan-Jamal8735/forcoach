@@ -4,6 +4,13 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 
+// Turnstile adds this hidden field to forms; Supabase auth verifies the token.
+function captchaToken(formData: FormData): string | undefined {
+  return String(formData.get("cf-turnstile-response") ?? "") || undefined;
+}
+
+const CAPTCHA_ERROR = "Please complete the security check and try again.";
+
 export type AuthActionState = {
   error?: string;
   success?: string;
@@ -22,10 +29,11 @@ export async function login(
   const { error } = await supabase.auth.signInWithPassword({
     email,
     password,
+    options: { captchaToken: captchaToken(formData) },
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: /captcha/i.test(error.message) ? CAPTCHA_ERROR : error.message };
   }
 
   redirect(redirectTo || "/dashboard");
@@ -61,11 +69,12 @@ export async function register(
       // through /auth/callback exchanges it properly and logs the coach in
       // automatically, landing them straight on the dashboard.
       emailRedirectTo: `${origin}/auth/callback?redirectTo=%2Fdashboard`,
+      captchaToken: captchaToken(formData),
     },
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: /captcha/i.test(error.message) ? CAPTCHA_ERROR : error.message };
   }
 
   return {
@@ -77,6 +86,7 @@ export async function register(
 
 export async function resendConfirmationEmail(
   email: string,
+  captcha?: string,
 ): Promise<{ error?: string; success?: string }> {
   const headerList = await headers();
   const origin =
@@ -89,11 +99,12 @@ export async function resendConfirmationEmail(
     email,
     options: {
       emailRedirectTo: `${origin}/auth/callback?redirectTo=%2Fdashboard`,
+      captchaToken: captcha,
     },
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: /captcha/i.test(error.message) ? CAPTCHA_ERROR : error.message };
   }
   return { success: "Confirmation email sent again." };
 }
@@ -140,10 +151,11 @@ export async function requestPasswordReset(
   // found in storage" because that's a different storage context.
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${origin}/auth/callback?redirectTo=%2Freset-password`,
+    captchaToken: captchaToken(formData),
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: /captcha/i.test(error.message) ? CAPTCHA_ERROR : error.message };
   }
 
   return {

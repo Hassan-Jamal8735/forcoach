@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Turnstile } from "@/components/turnstile";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const initialState: AuthActionState = {};
@@ -38,6 +39,7 @@ export default function ForgotPasswordPage() {
               <Label htmlFor="email">Email</Label>
               <Input id="email" name="email" type="email" required autoComplete="email" />
             </div>
+            <Turnstile resetKey={state} />
             <Button type="submit" className="w-full" disabled={isPending}>
               {isPending ? "Sending..." : "Send reset link"}
             </Button>

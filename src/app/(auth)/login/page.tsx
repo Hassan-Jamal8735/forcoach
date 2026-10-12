@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Turnstile } from "@/components/turnstile";
 import { GoogleSignInButton } from "../google-signin-button";
 
 const initialState: AuthActionState = {};
@@ -48,6 +49,7 @@ function LoginForm() {
           Forgot password?
         </Link>
       </div>
+      <Turnstile resetKey={state} />
       <Button type="submit" className="w-full" disabled={isPending}>
         {isPending ? "Logging in..." : "Log in"}
       </Button>

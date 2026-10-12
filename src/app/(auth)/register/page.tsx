@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Turnstile } from "@/components/turnstile";
 import { GoogleSignInButton } from "../google-signin-button";
 
 const initialState: AuthActionState = {};
@@ -19,6 +20,8 @@ function ConfirmationScreen({ email }: { email: string }) {
   const [code, setCode] = useState("");
   const [codeError, setCodeError] = useState<string | undefined>();
   const [isVerifying, startVerify] = useTransition();
+  const [captcha, setCaptcha] = useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = useState(0);
 
   function handleVerify(e: React.FormEvent) {
     e.preventDefault();
@@ -32,7 +35,8 @@ function ConfirmationScreen({ email }: { email: string }) {
   function handleResend() {
     setResendMessage(undefined);
     startTransition(async () => {
-      const result = await resendConfirmationEmail(email);
+      const result = await resendConfirmationEmail(email, captcha ?? undefined);
+      setCaptchaReset((n) => n + 1);
       setResendMessage(result.success ?? result.error);
     });
   }
@@ -83,12 +87,13 @@ function ConfirmationScreen({ email }: { email: string }) {
           <AlertDescription>{resendMessage}</AlertDescription>
         </Alert>
       )}
+      <Turnstile onToken={setCaptcha} resetKey={captchaReset} />
       <div className="flex gap-2">
         <Button
           type="button"
           variant="outline"
           className="flex-1"
-          disabled={isPending}
+          disabled={isPending || !captcha}
           onClick={handleResend}
         >
           {isPending ? "Sending..." : "Resend email"}
@@ -154,6 +159,7 @@ export default function RegisterPage() {
               />
               <p className="text-xs text-muted-foreground">At least 8 characters.</p>
             </div>
+            <Turnstile resetKey={state} />
             <Button type="submit" className="w-full" disabled={isPending}>
               {isPending ? "Creating account..." : "Create Account"}
             </Button>
