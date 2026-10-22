@@ -4,12 +4,32 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 
-// Turnstile adds this hidden field to forms; Supabase auth verifies the token.
+const CAPTCHA_ERROR = "Please complete the security check and try again.";
+
+// Turnstile adds this hidden field to forms. The website verifies it here,
+// on the server, rather than in Supabase auth: the mobile app has no
+// captcha, so auth itself can't require one.
 function captchaToken(formData: FormData): string | undefined {
   return String(formData.get("cf-turnstile-response") ?? "") || undefined;
 }
 
-const CAPTCHA_ERROR = "Please complete the security check and try again.";
+async function verifyCaptcha(token: string | undefined): Promise<boolean> {
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret) return true; // Not configured (local dev): don't block.
+  if (!token) return false;
+  const headerList = await headers();
+  const ip = headerList.get("x-forwarded-for")?.split(",")[0]?.trim();
+  try {
+    const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      body: new URLSearchParams({ secret, response: token, ...(ip ? { remoteip: ip } : {}) }),
+    });
+    const data = (await res.json()) as { success?: boolean };
+    return data.success === true;
+  } catch {
+    return false;
+  }
+}
 
 export type AuthActionState = {
   error?: string;
@@ -25,15 +45,18 @@ export async function login(
   const password = String(formData.get("password") ?? "");
   const redirectTo = String(formData.get("redirectTo") ?? "/dashboard");
 
+  if (!(await verifyCaptcha(captchaToken(formData)))) {
+    return { error: CAPTCHA_ERROR };
+  }
+
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({
     email,
     password,
-    options: { captchaToken: captchaToken(formData) },
   });
 
   if (error) {
-    return { error: /captcha/i.test(error.message) ? CAPTCHA_ERROR : error.message };
+    return { error: error.message };
   }
 
   redirect(redirectTo || "/dashboard");
@@ -57,6 +80,10 @@ export async function register(
     process.env.NEXT_PUBLIC_SITE_URL ??
     `${headerList.get("x-forwarded-proto") ?? "http"}://${headerList.get("host")}`;
 
+  if (!(await verifyCaptcha(captchaToken(formData)))) {
+    return { error: CAPTCHA_ERROR };
+  }
+
   const supabase = await createClient();
   const { error } = await supabase.auth.signUp({
     email,
@@ -69,12 +96,11 @@ export async function register(
       // through /auth/callback exchanges it properly and logs the coach in
       // automatically, landing them straight on the dashboard.
       emailRedirectTo: `${origin}/auth/callback?redirectTo=%2Fdashboard`,
-      captchaToken: captchaToken(formData),
     },
   });
 
   if (error) {
-    return { error: /captcha/i.test(error.message) ? CAPTCHA_ERROR : error.message };
+    return { error: error.message };
   }
 
   return {
@@ -93,18 +119,21 @@ export async function resendConfirmationEmail(
     process.env.NEXT_PUBLIC_SITE_URL ??
     `${headerList.get("x-forwarded-proto") ?? "http"}://${headerList.get("host")}`;
 
+  if (!(await verifyCaptcha(captcha))) {
+    return { error: CAPTCHA_ERROR };
+  }
+
   const supabase = await createClient();
   const { error } = await supabase.auth.resend({
     type: "signup",
     email,
     options: {
       emailRedirectTo: `${origin}/auth/callback?redirectTo=%2Fdashboard`,
-      captchaToken: captcha,
     },
   });
 
   if (error) {
-    return { error: /captcha/i.test(error.message) ? CAPTCHA_ERROR : error.message };
+    return { error: error.message };
   }
   return { success: "Confirmation email sent again." };
 }
@@ -143,6 +172,10 @@ export async function requestPasswordReset(
     process.env.NEXT_PUBLIC_SITE_URL ??
     `${headerList.get("x-forwarded-proto") ?? "http"}://${headerList.get("host")}`;
 
+  if (!(await verifyCaptcha(captchaToken(formData)))) {
+    return { error: CAPTCHA_ERROR };
+  }
+
   const supabase = await createClient();
   // Point the recovery link at the server-side callback rather than straight
   // at /reset-password. This request runs on the server, so the PKCE code
@@ -151,11 +184,10 @@ export async function requestPasswordReset(
   // found in storage" because that's a different storage context.
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${origin}/auth/callback?redirectTo=%2Freset-password`,
-    captchaToken: captchaToken(formData),
   });
 
   if (error) {
-    return { error: /captcha/i.test(error.message) ? CAPTCHA_ERROR : error.message };
+    return { error: error.message };
   }
 
   return {
