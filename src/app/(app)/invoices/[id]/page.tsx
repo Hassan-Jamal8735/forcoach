@@ -4,15 +4,19 @@ import { apiFetch, ApiError } from "@/lib/api/server-client";
 import type { InvoiceDetail } from "@/lib/api/invoices";
 import { formatCurrency } from "@/lib/currency";
 import { getUserCurrency } from "@/lib/user-currency";
+import { formatTimeRange, getUserTimeZone } from "@/lib/user-timezone";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineItemRate } from "./line-item-rate";
 
-function formatDate(value: string) {
+// Class dates take the coach's zone; invoice-level dates (period, due,
+// issue) are left as before, since the web stores those as UTC midnights.
+function formatDate(value: string, timeZone?: string) {
   return new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",
     month: "short",
     year: "numeric",
+    timeZone,
   }).format(new Date(value));
 }
 
@@ -33,6 +37,7 @@ export default async function InvoiceDetailPage({
 
   const { invoice, lineItems } = detail;
   const currencyCode = await getUserCurrency();
+  const timeZone = await getUserTimeZone();
   const money = (v: number) => formatCurrency(v, currencyCode);
   const isDraft = invoice.status === "draft";
 
@@ -89,7 +94,8 @@ export default async function InvoiceDetailPage({
                 <div>
                   <p className="font-medium">{item.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {formatDate(item.event_date)}
+                    {formatDate(item.event_date, timeZone)} ·{" "}
+                    {formatTimeRange(item.event_date, item.hours, timeZone)}
                   </p>
                 </div>
                 <span className="text-right text-muted-foreground">

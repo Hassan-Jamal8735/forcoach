@@ -18,7 +18,8 @@ import {
 } from "@/components/ui/alert-dialog";
 
 async function downloadInvoicePdf(invoiceId: string, invoiceNumber: string | null) {
-  const res = await fetch(`/api/invoices/${invoiceId}/pdf`);
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const res = await fetch(`/api/invoices/${invoiceId}/pdf?tz=${encodeURIComponent(tz)}`);
   if (!res.ok) {
     let message = "Failed to download the PDF.";
     try {

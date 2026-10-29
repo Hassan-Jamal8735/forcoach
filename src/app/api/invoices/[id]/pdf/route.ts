@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
@@ -17,7 +17,8 @@ export async function GET(
     return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
   }
 
-  const res = await fetch(`${API_URL}/invoices/${id}/pdf`, {
+  const tz = new URL(request.url).searchParams.get("tz") ?? "";
+  const res = await fetch(`${API_URL}/invoices/${id}/pdf?tz=${encodeURIComponent(tz)}`, {
     headers: { Authorization: `Bearer ${session.access_token}` },
     cache: "no-store",
   });

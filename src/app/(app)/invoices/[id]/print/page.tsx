@@ -4,13 +4,17 @@ import { createClient } from "@/lib/supabase/server";
 import type { InvoiceDetail } from "@/lib/api/invoices";
 import { formatCurrency } from "@/lib/currency";
 import { getUserCurrency } from "@/lib/user-currency";
+import { formatTimeRange, toTimeZone } from "@/lib/user-timezone";
 import { PrintButton } from "./print-button";
 
-function formatDate(value: string) {
+// Class dates take the coach's zone; invoice-level dates (period, due,
+// issue) are left as before, since the web stores those as UTC midnights.
+function formatDate(value: string, timeZone?: string) {
   return new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",
     month: "short",
     year: "numeric",
+    timeZone,
   }).format(new Date(value));
 }
 
@@ -38,6 +42,7 @@ export default async function InvoicePrintPage({
     data: { user },
   } = await supabase.auth.getUser();
   const metadata = (user?.user_metadata ?? {}) as Record<string, unknown>;
+  const timeZone = toTimeZone(metadata.timezone);
   const coachName = (metadata.full_name as string | undefined) ?? user?.email ?? "";
   const siret = metadata.siret as string | undefined;
   const iban = metadata.iban as string | undefined;
@@ -108,6 +113,7 @@ export default async function InvoicePrintPage({
           <thead>
             <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
               <th className="pb-2 font-medium">Date</th>
+              <th className="pb-2 font-medium">Time</th>
               <th className="pb-2 font-medium">Class</th>
               <th className="pb-2 text-right font-medium">Duration</th>
               <th className="pb-2 text-right font-medium">Rate</th>
@@ -117,7 +123,10 @@ export default async function InvoicePrintPage({
           <tbody>
             {lineItems.map((item) => (
               <tr key={item.id} className="border-b">
-                <td className="py-2">{formatDate(item.event_date)}</td>
+                <td className="py-2">{formatDate(item.event_date, timeZone)}</td>
+                <td className="py-2">
+                  {formatTimeRange(item.event_date, item.hours, timeZone)}
+                </td>
                 <td className="py-2">{item.title}</td>
                 <td className="py-2 text-right text-muted-foreground">
                   {Math.round(item.hours * 60)} min

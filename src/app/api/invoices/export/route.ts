@@ -13,8 +13,10 @@ export async function GET(request: Request) {
     return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
   }
 
-  const year = new URL(request.url).searchParams.get("year") ?? "";
-  const res = await fetch(`${API_URL}/invoices/export?year=${year}`, {
+  const searchParams = new URL(request.url).searchParams;
+  const year = searchParams.get("year") ?? "";
+  const tz = searchParams.get("tz") ?? "";
+  const res = await fetch(`${API_URL}/invoices/export?year=${year}&tz=${encodeURIComponent(tz)}`, {
     headers: { Authorization: `Bearer ${session.access_token}` },
     cache: "no-store",
   });

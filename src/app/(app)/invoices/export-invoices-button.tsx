@@ -13,7 +13,8 @@ import {
 } from "@/components/ui/select";
 
 async function downloadZip(year: string) {
-  const res = await fetch(`/api/invoices/export?year=${year}`);
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const res = await fetch(`/api/invoices/export?year=${year}&tz=${encodeURIComponent(tz)}`);
   if (!res.ok) {
     let message = "Failed to export invoices.";
     try {
